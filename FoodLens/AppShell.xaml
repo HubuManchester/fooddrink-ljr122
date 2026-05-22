@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:views="clr-namespace:FoodLens.Views"
+       x:Class="FoodLens.AppShell"
+       Title="FoodLens"
+       Shell.FlyoutBehavior="Disabled">
+
+    <!-- Tab-based navigation for intuitive UX -->
+    <TabBar>
+        <ShellContent Title="Recipes"
+                      Icon="recipe_icon.png"
+                      ContentTemplate="{DataTemplate views:RecipesPage}"
+                      Route="RecipesPage"/>
+
+        <ShellContent Title="Scanner"
+                      Icon="camera_icon.png"
+                      ContentTemplate="{DataTemplate views:CameraPage}"
+                      Route="CameraPage"/>
+
+        <ShellContent Title="Map"
+                      Icon="map_icon.png"
+                      ContentTemplate="{DataTemplate views:MapPage}"
+                      Route="MapPage"/>
+
+        <ShellContent Title="Settings"
+                      Icon="settings_icon.png"
+                      ContentTemplate="{DataTemplate views:SettingsPage}"
+                      Route="SettingsPage"/>
+
+        <ShellContent Title="Help"
+                      Icon="help_icon.png"
+                      ContentTemplate="{DataTemplate views:HelpPage}"
+                      Route="HelpPage"/>
+    </TabBar>
+
+</Shell>

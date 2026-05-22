@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FoodLens.Views.MapPage"
+             Title="Food Map"
+             BackgroundColor="{AppThemeBinding Light={StaticResource BackgroundLight}, Dark={StaticResource BackgroundDark}}">
+
+    <VerticalStackLayout Spacing="12" Padding="16">
+
+        <!-- Page Header -->
+        <Label Text="Food Origins Map"
+               FontSize="24"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"
+               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+               SemanticProperties.HeadingLevel="Level1"/>
+
+        <Label Text="Discover where your favourite recipes come from around the world."
+               FontSize="14"
+               HorizontalOptions="Center"
+               HorizontalTextAlignment="Center"
+               TextColor="{AppThemeBinding Light=#616161, Dark=#BDBDBD}"/>
+
+        <!-- Location Display -->
+        <Frame Padding="16"
+               CornerRadius="12"
+               BackgroundColor="{AppThemeBinding Light=#E3F2FD, Dark=#0D47A1}"
+               BorderColor="Transparent">
+            <VerticalStackLayout Spacing="8">
+                <Label Text="📍 Your Current Location"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                       SemanticProperties.HeadingLevel="Level2"/>
+                <Label x:Name="LocationLabel"
+                       Text="Tap the button below to get your location"
+                       FontSize="14"
+                       TextColor="{AppThemeBinding Light=#424242, Dark=#E0E0E0}"
+                       SemanticProperties.Description="Your current geographic location"/>
+            </VerticalStackLayout>
+        </Frame>
+
+        <!-- Get Location Button (HARDWARE: Geolocation) -->
+        <Button Text="📍 Get My Location"
+                Clicked="OnGetLocationClicked"
+                BackgroundColor="{StaticResource PrimaryColor}"
+                TextColor="White"
+                CornerRadius="12"
+                FontSize="15"
+                HeightRequest="48"
+                SemanticProperties.Description="Get your current geographic location"
+                SemanticProperties.Hint="Uses GPS to determine your current position"/>
+
+        <!-- Recipe Origins List -->
+        <Label Text="Recipe Origins"
+               FontSize="18"
+               FontAttributes="Bold"
+               Margin="0,12,0,4"
+               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+               SemanticProperties.HeadingLevel="Level2"/>
+
+        <CollectionView x:Name="OriginsCollection"
+                        SemanticProperties.Description="List of recipe origins you can view on a map">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="12"
+                           Margin="0,4"
+                           CornerRadius="10"
+                           BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource SurfaceDark}}"
+                           BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="{Binding Name}"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                                <Label Text="{Binding Origin}"
+                                       FontSize="13"
+                                       TextColor="{StaticResource PrimaryColor}"/>
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1"
+                                    Text="🗺️"
+                                    FontSize="20"
+                                    BackgroundColor="Transparent"
+                                    Clicked="OnOpenMapClicked"
+                                    CommandParameter="{Binding .}"
+                                    SemanticProperties.Description="Open map for this recipe origin"/>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </VerticalStackLayout>
+</ContentPage>

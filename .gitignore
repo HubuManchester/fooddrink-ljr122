@@ -1,0 +1,10 @@
+## 忽略 Visual Studio 缓存文件夹
+.vs/
+bin/
+obj/
+*.user
+*.suo
+
+## 忽略系统文件
+Thumbs.db
+.DS_Store
