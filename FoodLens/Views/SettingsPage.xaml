@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:FoodLens.ViewModels"
+             x:Class="FoodLens.Views.SettingsPage"
+             x:DataType="viewmodels:SettingsViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource BackgroundLight}, Dark={StaticResource BackgroundDark}}">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="20">
+
+            <!-- Page Header -->
+            <Label Text="Settings"
+                   FontSize="26"
+                   FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                   SemanticProperties.HeadingLevel="Level1"
+                   SemanticProperties.Description="Settings page for customising the application"/>
+
+            <!-- Appearance Section -->
+            <Frame Padding="16"
+                   CornerRadius="12"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource SurfaceDark}}"
+                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}">
+                <VerticalStackLayout Spacing="12">
+
+                    <Label Text="Appearance"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           SemanticProperties.HeadingLevel="Level2"/>
+
+                    <!-- Dark Mode Toggle -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Grid.Column="0">
+                            <Label Text="Dark Mode"
+                                   FontSize="16"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                   SemanticProperties.Description="Toggle dark mode on or off"/>
+                            <Label Text="Reduces eye strain in low light conditions"
+                                   FontSize="12"
+                                   TextColor="Gray"/>
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding IsDarkMode}"
+                                OnColor="{StaticResource PrimaryColor}"
+                                SemanticProperties.Description="Dark mode switch"
+                                SemanticProperties.Hint="Toggle to enable or disable dark mode"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"/>
+
+                    <!-- High Contrast Toggle -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Grid.Column="0">
+                            <Label Text="High Contrast"
+                                   FontSize="16"
+                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                   SemanticProperties.Description="Toggle high contrast mode"/>
+                            <Label Text="Increases colour contrast for better visibility"
+                                   FontSize="12"
+                                   TextColor="Gray"/>
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding IsHighContrast}"
+                                OnColor="{StaticResource SecondaryColor}"
+                                SemanticProperties.Description="High contrast switch"
+                                SemanticProperties.Hint="Toggle to enable or disable high contrast mode"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Font Size Section (WCAG 1.4.4 Resize Text) -->
+            <Frame Padding="16"
+                   CornerRadius="12"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource SurfaceDark}}"
+                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}">
+                <VerticalStackLayout Spacing="12">
+
+                    <Label Text="Text Size"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           SemanticProperties.HeadingLevel="Level2"/>
+
+                    <Label Text="{Binding FontSizeLabel}"
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light=#616161, Dark=#BDBDBD}"
+                           SemanticProperties.Description="{Binding FontSizeLabel}"/>
+
+                    <!-- Font Size Controls -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <Button Grid.Column="0"
+                                Text="A-"
+                                FontSize="18"
+                                Command="{Binding DecreaseFontSizeCommand}"
+                                BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#424242}"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                CornerRadius="10"
+                                HeightRequest="48"
+                                SemanticProperties.Description="Decrease font size"
+                                SemanticProperties.Hint="Tap to make text smaller"/>
+                        <Button Grid.Column="1"
+                                Text="A+"
+                                FontSize="18"
+                                Command="{Binding IncreaseFontSizeCommand}"
+                                BackgroundColor="{StaticResource PrimaryColor}"
+                                TextColor="White"
+                                CornerRadius="10"
+                                HeightRequest="48"
+                                SemanticProperties.Description="Increase font size"
+                                SemanticProperties.Hint="Tap to make text larger"/>
+                    </Grid>
+
+                    <!-- Preview Text -->
+                    <Frame Padding="12"
+                           CornerRadius="8"
+                           BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2C2C2C}"
+                           BorderColor="Transparent">
+                        <Label Text="Preview: This is how text will appear in the app."
+                               FontSize="14"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                               SemanticProperties.Description="Text size preview showing current font size setting"/>
+                    </Frame>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Accessibility Info Section -->
+            <Frame Padding="16"
+                   CornerRadius="12"
+                   BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
+                   BorderColor="Transparent">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="♿ Accessibility Features"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           SemanticProperties.HeadingLevel="Level2"/>
+                    <Label Text="This app follows WCAG 2.1 guidelines:"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light=#424242, Dark=#E0E0E0}"/>
+                    <Label Text="• Screen reader support (SemanticProperties)"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light=#424242, Dark=#E0E0E0}"/>
+                    <Label Text="• Adjustable text size (WCAG 1.4.4)"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light=#424242, Dark=#E0E0E0}"/>
+                    <Label Text="• Dark mode for reduced eye strain"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light=#424242, Dark=#E0E0E0}"/>
+                    <Label Text="• High contrast colours (WCAG 1.4.3 - 4.5:1 ratio)"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light=#424242, Dark=#E0E0E0}"/>
+                    <Label Text="• Text-to-speech for recipe steps"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light=#424242, Dark=#E0E0E0}"/>
+                    <Label Text="• Clear navigation and consistent layout"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light=#424242, Dark=#E0E0E0}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Reset Button -->
+            <Button Text="🔄 Reset All Settings"
+                    Command="{Binding ResetSettingsCommand}"
+                    BackgroundColor="{StaticResource ErrorColor}"
+                    TextColor="White"
+                    CornerRadius="12"
+                    FontSize="15"
+                    HeightRequest="48"
+                    Margin="0,8"
+                    SemanticProperties.Description="Reset all settings to default values"
+                    SemanticProperties.Hint="This will reset dark mode, font size, and all other settings to their defaults"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

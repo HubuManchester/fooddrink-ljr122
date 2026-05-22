@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FoodLens.Views.HelpPage"
+             Title="Help"
+             BackgroundColor="{AppThemeBinding Light={StaticResource BackgroundLight}, Dark={StaticResource BackgroundDark}}">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="20">
+
+            <!-- Page Header -->
+            <Label Text="❓ Help and User Guide"
+                   FontSize="26"
+                   FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                   SemanticProperties.HeadingLevel="Level1"
+                   SemanticProperties.Description="Help page providing instructions on how to use the FoodLens application"/>
+
+            <Label Text="Welcome to FoodLens! Here is everything you need to know about using this app."
+                   FontSize="14"
+                   TextColor="{AppThemeBinding Light=#616161, Dark=#BDBDBD}"/>
+
+            <!-- Section 1: Getting Started -->
+            <Frame Padding="16" CornerRadius="12"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource SurfaceDark}}"
+                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="🚀 Getting Started"
+                           FontSize="18" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           SemanticProperties.HeadingLevel="Level2"/>
+                    <Label Text="FoodLens is a recipe discovery app that helps you find, explore, and cook delicious meals from around the world. Browse recipes by category, scan food with your camera, or shake your device to discover something new."
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Section 2: Recipes -->
+            <Frame Padding="16" CornerRadius="12"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource SurfaceDark}}"
+                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="🍽️ Browsing Recipes"
+                           FontSize="18" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           SemanticProperties.HeadingLevel="Level2"/>
+                    <Label Text="• Use the search bar at the top to find recipes by name or description."
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="• Tap category buttons (All, Breakfast, Dinner, Dessert, Drinks) to filter recipes."
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="• Tap any recipe card to view full details including ingredients and steps."
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="• Pull down on the recipe list to refresh."
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Section 3: Shake to Discover -->
+            <Frame Padding="16" CornerRadius="12"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource SurfaceDark}}"
+                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="🎲 Shake to Discover"
+                           FontSize="18" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           SemanticProperties.HeadingLevel="Level2"/>
+                    <Label Text="Cannot decide what to cook? Simply shake your device while on the Recipes page and a random recipe will be suggested! You can also tap the dice button in the bottom-right corner."
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Section 4: Food Scanner -->
+            <Frame Padding="16" CornerRadius="12"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource SurfaceDark}}"
+                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="📷 Food Scanner"
+                           FontSize="18" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           SemanticProperties.HeadingLevel="Level2"/>
+                    <Label Text="Use your device camera to take a photo of any food item. The app will attempt to identify the food and provide estimated nutritional information. You can also pick an existing photo from your gallery."
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Section 5: Text-to-Speech -->
+            <Frame Padding="16" CornerRadius="12"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource SurfaceDark}}"
+                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="🔊 Read Aloud"
+                           FontSize="18" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           SemanticProperties.HeadingLevel="Level2"/>
+                    <Label Text="On any recipe detail page, tap the 'Read Steps Aloud' button to have the recipe steps read to you using text-to-speech. This is useful when your hands are busy cooking! Tap again to stop."
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Section 6: Map -->
+            <Frame Padding="16" CornerRadius="12"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource SurfaceDark}}"
+                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="🗺️ Food Map"
+                           FontSize="18" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           SemanticProperties.HeadingLevel="Level2"/>
+                    <Label Text="The Food Map page shows where each recipe originates from. Tap the map icon next to any recipe to open it in your device's map application. You can also get your current GPS location."
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Section 7: Accessibility -->
+            <Frame Padding="16" CornerRadius="12"
+                   BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
+                   BorderColor="Transparent">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="♿ Accessibility"
+                           FontSize="18" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           SemanticProperties.HeadingLevel="Level2"/>
+                    <Label Text="FoodLens is designed with accessibility in mind following WCAG 2.1 guidelines:"
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="• Screen Reader Support: All elements have semantic descriptions for TalkBack/VoiceOver."
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="• Text Resizing: Adjust font size in Settings (WCAG 1.4.4)."
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="• Dark Mode: Reduce eye strain in low-light environments."
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="• Colour Contrast: All text meets WCAG AA 4.5:1 contrast ratio (WCAG 1.4.3)."
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="• Text-to-Speech: Have recipes read aloud for hands-free cooking."
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="• Consistent Navigation: Predictable layout across all pages (WCAG 3.2.3)."
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Section 8: Hardware Features -->
+            <Frame Padding="16" CornerRadius="12"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource SurfaceDark}}"
+                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="📱 Hardware Features Used"
+                           FontSize="18" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           SemanticProperties.HeadingLevel="Level2"/>
+                    <Label Text="1. Camera - Food photo capture and identification"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="2. Text-to-Speech - Read recipe steps aloud"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="3. Accelerometer (Shake) - Shake to discover random recipe"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="4. Geolocation/GPS - Get current location and show recipe origins"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="5. Haptic Feedback - Tactile response on interactions"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                    <Label Text="6. Vibration - Confirmation feedback for actions"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- App Version -->
+            <Label Text="FoodLens v1.0.0 | Built with .NET MAUI"
+                   FontSize="12"
+                   HorizontalOptions="Center"
+                   TextColor="Gray"
+                   Margin="0,12"
+                   SemanticProperties.Description="App version information"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

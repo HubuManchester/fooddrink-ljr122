@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="FoodLens.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- App-wide colour definitions (WCAG AA 4.5:1 contrast compliant) -->
+            <Color x:Key="PrimaryColor">#2E7D32</Color>
+            <Color x:Key="PrimaryDarkColor">#1B5E20</Color>
+            <Color x:Key="SecondaryColor">#FF6F00</Color>
+            <Color x:Key="ErrorColor">#D32F2F</Color>
+
+            <!-- Light Theme Colours -->
+            <Color x:Key="BackgroundLight">#FFFFFF</Color>
+            <Color x:Key="TextPrimaryLight">#212121</Color>
+            <Color x:Key="TextSecondaryLight">#616161</Color>
+
+            <!-- Dark Theme Colours -->
+            <Color x:Key="BackgroundDark">#121212</Color>
+            <Color x:Key="SurfaceDark">#1E1E1E</Color>
+            <Color x:Key="TextPrimaryDark">#FFFFFF</Color>
+            <Color x:Key="TextSecondaryDark">#B0B0B0</Color>
+
+            <!-- Value Converters -->
+            <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

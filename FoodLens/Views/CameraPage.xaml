@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:FoodLens.ViewModels"
+             x:Class="FoodLens.Views.CameraPage"
+             x:DataType="viewmodels:CameraViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource BackgroundLight}, Dark={StaticResource BackgroundDark}}">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="20">
+
+            <!-- Page Header -->
+            <Label Text="Food Scanner"
+                   FontSize="26"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                   SemanticProperties.HeadingLevel="Level1"
+                   SemanticProperties.Description="Food Scanner page. Take a photo of food to identify it."/>
+
+            <Label Text="Take a photo of any food item and our AI will identify it and estimate its nutritional content."
+                   FontSize="14"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light=#616161, Dark=#BDBDBD}"
+                   SemanticProperties.Description="Instructions for using the food scanner"/>
+
+            <!-- Camera Buttons -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,12">
+
+                <Button Grid.Column="0"
+                        Text="📷 Take Photo"
+                        Command="{Binding TakePhotoCommand}"
+                        BackgroundColor="{StaticResource PrimaryColor}"
+                        TextColor="White"
+                        FontSize="15"
+                        FontAttributes="Bold"
+                        CornerRadius="12"
+                        HeightRequest="50"
+                        IsEnabled="{Binding IsNotBusy}"
+                        SemanticProperties.Description="Take a photo using your device camera"
+                        SemanticProperties.Hint="Opens the camera to capture a food photo"/>
+
+                <Button Grid.Column="1"
+                        Text="🖼️ Pick Photo"
+                        Command="{Binding PickPhotoCommand}"
+                        BackgroundColor="{StaticResource SecondaryColor}"
+                        TextColor="White"
+                        FontSize="15"
+                        FontAttributes="Bold"
+                        CornerRadius="12"
+                        HeightRequest="50"
+                        IsEnabled="{Binding IsNotBusy}"
+                        SemanticProperties.Description="Select a photo from your gallery"
+                        SemanticProperties.Hint="Opens your photo gallery to select a food image"/>
+            </Grid>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource PrimaryColor}"
+                               HeightRequest="40"
+                               SemanticProperties.Description="Loading indicator, analysing your photo"/>
+
+            <!-- Captured Image Display -->
+            <Frame Padding="0"
+                   CornerRadius="16"
+                   HasShadow="True"
+                   IsClippedToBounds="True"
+                   IsVisible="{Binding HasPhoto}"
+                   HeightRequest="250"
+                   BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2C2C2C}">
+                <Image Source="{Binding CapturedImage}"
+                       Aspect="AspectFill"
+                       HeightRequest="250"
+                       SemanticProperties.Description="Your captured food photo"/>
+            </Frame>
+
+            <!-- Identification Results -->
+            <Frame Padding="16"
+                   CornerRadius="12"
+                   BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
+                   BorderColor="Transparent"
+                   IsVisible="{Binding HasPhoto}">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{Binding IdentificationResult}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           SemanticProperties.HeadingLevel="Level2"
+                           SemanticProperties.Description="{Binding IdentificationResult}"/>
+
+                    <Label Text="{Binding ConfidenceText}"
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light=#388E3C, Dark=#81C784}"
+                           IsVisible="{Binding ConfidenceText, Converter={x:Null}}"
+                           SemanticProperties.Description="{Binding ConfidenceText}"/>
+
+                    <Label Text="{Binding NutritionEstimate}"
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           SemanticProperties.Description="Estimated nutritional information for the identified food"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Reset Button -->
+            <Button Text="🔄 Scan Another"
+                    Command="{Binding ResetScannerCommand}"
+                    BackgroundColor="#757575"
+                    TextColor="White"
+                    CornerRadius="12"
+                    FontSize="14"
+                    IsVisible="{Binding HasPhoto}"
+                    HeightRequest="44"
+                    SemanticProperties.Description="Reset the scanner to take another photo"
+                    SemanticProperties.Hint="Clears the current result and allows you to scan again"/>
+
+            <!-- Placeholder when no photo taken -->
+            <VerticalStackLayout IsVisible="{Binding HasPhoto, Converter={StaticResource InvertedBoolConverter}}"
+                                 Spacing="8"
+                                 Padding="20"
+                                 VerticalOptions="Center">
+                <Label Text="📸"
+                       FontSize="64"
+                       HorizontalOptions="Center"/>
+                <Label Text="{Binding IdentificationResult}"
+                       FontSize="16"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"
+                       SemanticProperties.Description="Instruction to take a photo"/>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
