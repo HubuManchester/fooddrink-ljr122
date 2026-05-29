@@ -91,15 +91,17 @@
                            SemanticProperties.HeadingLevel="Level2"
                            SemanticProperties.Description="{Binding IdentificationResult}"/>
 
+                    <!-- FIXED: Was Converter={x:Null} which caused this label to never show -->
                     <Label Text="{Binding ConfidenceText}"
                            FontSize="14"
                            TextColor="{AppThemeBinding Light=#388E3C, Dark=#81C784}"
-                           IsVisible="{Binding ConfidenceText, Converter={x:Null}}"
+                           IsVisible="{Binding ConfidenceText, Converter={StaticResource IsStringNotNullOrEmptyConverter}}"
                            SemanticProperties.Description="{Binding ConfidenceText}"/>
 
                     <Label Text="{Binding NutritionEstimate}"
                            FontSize="13"
                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           IsVisible="{Binding NutritionEstimate, Converter={StaticResource IsStringNotNullOrEmptyConverter}}"
                            SemanticProperties.Description="Estimated nutritional information for the identified food"/>
                 </VerticalStackLayout>
             </Frame>

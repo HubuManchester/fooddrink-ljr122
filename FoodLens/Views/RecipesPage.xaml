@@ -3,12 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:FoodLens.ViewModels"
              xmlns:models="clr-namespace:FoodLens.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="FoodLens.Views.RecipesPage"
              x:DataType="viewmodels:RecipesViewModel"
              Title="{Binding Title}"
              BackgroundColor="{AppThemeBinding Light={StaticResource BackgroundLight}, Dark={StaticResource BackgroundDark}}">
-
-    <!-- Accessibility: SemanticProperties for screen readers throughout -->
 
     <Grid RowDefinitions="Auto,Auto,*"
           Padding="10"
@@ -25,14 +24,15 @@
                    SemanticProperties.Hint="Search for recipes by name or description"
                    SemanticProperties.Description="Recipe search box"/>
 
-        <!-- Category Filter - Horizontal ScrollView -->
+        <!-- Category Filter - Horizontal ScrollView with proper command bindings -->
         <ScrollView Grid.Row="1"
                     Orientation="Horizontal"
                     HorizontalScrollBarVisibility="Never">
             <HorizontalStackLayout Spacing="8"
                                    SemanticProperties.Description="Category filter buttons">
                 <Button Text="All"
-                        Command="{Binding GetRecipesCommand}"
+                        Command="{Binding FilterByCategoryCommand}"
+                        CommandParameter="All"
                         BackgroundColor="{StaticResource PrimaryColor}"
                         TextColor="White"
                         CornerRadius="20"
@@ -40,18 +40,17 @@
                         FontSize="14"
                         SemanticProperties.Hint="Show all recipe categories"/>
                 <Button Text="Breakfast"
+                        Command="{Binding FilterByCategoryCommand}"
+                        CommandParameter="Breakfast"
                         BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
                         TextColor="{AppThemeBinding Light=#1B5E20, Dark=#E8F5E9}"
                         CornerRadius="20"
                         Padding="16,8"
                         FontSize="14"
-                        SemanticProperties.Hint="Filter to show only breakfast recipes">
-                    <Button.GestureRecognizers>
-                        <TapGestureRecognizer
-                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:RecipesViewModel}}, Path=GetRecipesCommand}"/>
-                    </Button.GestureRecognizers>
-                </Button>
+                        SemanticProperties.Hint="Filter to show only breakfast recipes"/>
                 <Button Text="Dinner"
+                        Command="{Binding FilterByCategoryCommand}"
+                        CommandParameter="Dinner"
                         BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
                         TextColor="{AppThemeBinding Light=#1B5E20, Dark=#E8F5E9}"
                         CornerRadius="20"
@@ -59,6 +58,8 @@
                         FontSize="14"
                         SemanticProperties.Hint="Filter to show only dinner recipes"/>
                 <Button Text="Dessert"
+                        Command="{Binding FilterByCategoryCommand}"
+                        CommandParameter="Dessert"
                         BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
                         TextColor="{AppThemeBinding Light=#1B5E20, Dark=#E8F5E9}"
                         CornerRadius="20"
@@ -66,6 +67,8 @@
                         FontSize="14"
                         SemanticProperties.Hint="Filter to show only dessert recipes"/>
                 <Button Text="Drinks"
+                        Command="{Binding FilterByCategoryCommand}"
+                        CommandParameter="Drinks"
                         BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
                         TextColor="{AppThemeBinding Light=#1B5E20, Dark=#E8F5E9}"
                         CornerRadius="20"
@@ -75,10 +78,14 @@
             </HorizontalStackLayout>
         </ScrollView>
 
-        <!-- Recipe List -->
+        <!-- Recipe List with SwipeView for swipe-to-favourite gesture -->
+        <!-- FIX: Changed IsRefreshing binding to Mode=OneWay.
+             The default TwoWay binding caused the RefreshView to set IsBusy=true
+             BEFORE the command executed, triggering the guard clause and preventing
+             IsBusy from ever being reset to false (infinite spinner). -->
         <RefreshView Grid.Row="2"
                      Command="{Binding GetRecipesCommand}"
-                     IsRefreshing="{Binding IsBusy}"
+                     IsRefreshing="{Binding IsBusy, Mode=OneWay}"
                      SemanticProperties.Description="Pull down to refresh the recipe list">
 
             <CollectionView ItemsSource="{Binding Recipes}"
@@ -108,71 +115,144 @@
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Recipe">
-                        <Frame Margin="0,5"
-                               Padding="0"
-                               CornerRadius="12"
-                               HasShadow="True"
-                               BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource SurfaceDark}}"
-                               BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
-                               SemanticProperties.Description="{Binding Name}">
+                        <!-- SwipeView: Swipe right to favourite, swipe left to share -->
+                        <SwipeView>
+                            <SwipeView.LeftItems>
+                                <SwipeItems Mode="Execute">
+                                    <SwipeItem Text="❤️ Favourite"
+                                               BackgroundColor="#E91E63"
+                                               Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:RecipesViewModel}}, Path=SwipeFavouriteCommand}"
+                                               CommandParameter="{Binding .}"/>
+                                </SwipeItems>
+                            </SwipeView.LeftItems>
+                            <SwipeView.RightItems>
+                                <SwipeItems Mode="Execute">
+                                    <SwipeItem Text="📤 Share"
+                                               BackgroundColor="#7B1FA2"
+                                               Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:RecipesViewModel}}, Path=ShareRecipeCommand}"
+                                               CommandParameter="{Binding .}"/>
+                                </SwipeItems>
+                            </SwipeView.RightItems>
 
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:RecipesViewModel}}, Path=GoToDetailCommand}"
-                                    CommandParameter="{Binding .}"/>
-                            </Frame.GestureRecognizers>
+                            <Frame Margin="0,5"
+                                   Padding="0"
+                                   CornerRadius="12"
+                                   HasShadow="True"
+                                   BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource SurfaceDark}}"
+                                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                                   SemanticProperties.Description="{Binding Name}">
 
-                            <Grid ColumnDefinitions="120,*"
-                                  RowDefinitions="Auto">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:RecipesViewModel}}, Path=GoToDetailCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                </Frame.GestureRecognizers>
 
-                                <!-- Recipe Image -->
-                                <Image Grid.Column="0"
-                                       Source="{Binding ImageUrl}"
-                                       Aspect="AspectFill"
-                                       HeightRequest="100"
-                                       WidthRequest="120"
-                                       SemanticProperties.Description="{Binding Name, StringFormat='Photo of {0}'}"/>
+                                <Grid ColumnDefinitions="120,*"
+                                      RowDefinitions="Auto">
 
-                                <!-- Recipe Info -->
-                                <VerticalStackLayout Grid.Column="1"
-                                                     Padding="12,8"
-                                                     Spacing="4"
-                                                     VerticalOptions="Center">
+                                    <!-- Recipe Image with error handling for missing images -->
+                                    <Grid Grid.Column="0">
+                                        <!-- Show image when available -->
+                                        <Image Source="{Binding ImageUrl}"
+                                               Aspect="AspectFill"
+                                               HeightRequest="100"
+                                               WidthRequest="120"
+                                               IsVisible="{Binding IsImageAvailable}"
+                                               SemanticProperties.Description="{Binding Name, StringFormat='Photo of {0}'}"/>
 
-                                    <Label Text="{Binding Name}"
-                                           FontSize="16"
-                                           FontAttributes="Bold"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                                           MaxLines="1"
-                                           LineBreakMode="TailTruncation"
-                                           SemanticProperties.HeadingLevel="Level3"/>
+                                        <!-- Show error placeholder when image is NOT available -->
+                                        <Frame IsVisible="{Binding IsImageAvailable, Converter={StaticResource InvertedBoolConverter}}"
+                                               BackgroundColor="{AppThemeBinding Light=#FFEBEE, Dark=#4E342E}"
+                                               Padding="8"
+                                               CornerRadius="0"
+                                               HeightRequest="100"
+                                               WidthRequest="120"
+                                               BorderColor="Transparent">
+                                            <VerticalStackLayout VerticalOptions="Center"
+                                                                 HorizontalOptions="Center"
+                                                                 Spacing="4">
+                                                <Label Text="⚠️"
+                                                       FontSize="24"
+                                                       HorizontalOptions="Center"/>
+                                                <Label Text="Image not available"
+                                                       FontSize="10"
+                                                       HorizontalTextAlignment="Center"
+                                                       TextColor="{AppThemeBinding Light=#C62828, Dark=#EF9A9A}"
+                                                       SemanticProperties.Description="Recipe image could not be loaded"/>
+                                            </VerticalStackLayout>
+                                        </Frame>
+                                    </Grid>
 
-                                    <Label Text="{Binding Description}"
-                                           FontSize="13"
-                                           TextColor="Gray"
-                                           MaxLines="2"
-                                           LineBreakMode="TailTruncation"/>
+                                    <!-- Recipe Info -->
+                                    <VerticalStackLayout Grid.Column="1"
+                                                         Padding="12,8"
+                                                         Spacing="4"
+                                                         VerticalOptions="Center">
 
-                                    <HorizontalStackLayout Spacing="12">
-                                        <Label Text="{Binding TotalTimeMinutes, StringFormat='⏱️ {0} min'}"
-                                               FontSize="12"
-                                               TextColor="{StaticResource PrimaryColor}"
-                                               SemanticProperties.Description="{Binding TotalTimeMinutes, StringFormat='Total cooking time {0} minutes'}"/>
-                                        <Label Text="{Binding Difficulty, StringFormat='📊 {0}'}"
-                                               FontSize="12"
-                                               TextColor="{StaticResource SecondaryColor}"
-                                               SemanticProperties.Description="{Binding Difficulty, StringFormat='Difficulty level {0}'}"/>
-                                        <Label Text="{Binding Category}"
-                                               FontSize="12"
-                                               TextColor="Gray"/>
-                                    </HorizontalStackLayout>
-                                </VerticalStackLayout>
-                            </Grid>
-                        </Frame>
+                                        <Label Text="{Binding Name}"
+                                               FontSize="16"
+                                               FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                               MaxLines="1"
+                                               LineBreakMode="TailTruncation"
+                                               SemanticProperties.HeadingLevel="Level3"/>
+
+                                        <Label Text="{Binding Description}"
+                                               FontSize="13"
+                                               TextColor="Gray"
+                                               MaxLines="2"
+                                               LineBreakMode="TailTruncation"/>
+
+                                        <HorizontalStackLayout Spacing="12">
+                                            <Label Text="{Binding TotalTimeMinutes, StringFormat='⏱️ {0} min'}"
+                                                   FontSize="12"
+                                                   TextColor="{StaticResource PrimaryColor}"
+                                                   SemanticProperties.Description="{Binding TotalTimeMinutes, StringFormat='Total cooking time {0} minutes'}"/>
+                                            <Label Text="{Binding Difficulty, StringFormat='📊 {0}'}"
+                                                   FontSize="12"
+                                                   TextColor="{StaticResource SecondaryColor}"
+                                                   SemanticProperties.Description="{Binding Difficulty, StringFormat='Difficulty level {0}'}"/>
+                                            <Label Text="{Binding Category}"
+                                                   FontSize="12"
+                                                   TextColor="Gray"/>
+                                        </HorizontalStackLayout>
+
+                                        <!-- Swipe hint for discoverability -->
+                                        <Label Text="← Swipe to favourite | Share →"
+                                               FontSize="10"
+                                               TextColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"
+                                               IsVisible="{Binding IsFavourite, Converter={StaticResource InvertedBoolConverter}}"/>
+                                        <Label Text="❤️ Favourited"
+                                               FontSize="10"
+                                               TextColor="#E91E63"
+                                               IsVisible="{Binding IsFavourite}"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Frame>
+                        </SwipeView>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </RefreshView>
+
+        <!-- Toast Notification Overlay -->
+        <Frame Grid.Row="2"
+               IsVisible="{Binding IsToastVisible}"
+               BackgroundColor="{AppThemeBinding Light=#323232, Dark=#E0E0E0}"
+               CornerRadius="24"
+               Padding="16,10"
+               HorizontalOptions="Center"
+               VerticalOptions="End"
+               Margin="0,0,0,80"
+               HasShadow="True"
+               BorderColor="Transparent"
+               SemanticProperties.Description="{Binding ToastMessage}">
+            <Label Text="{Binding ToastMessage}"
+                   FontSize="14"
+                   TextColor="{AppThemeBinding Light=White, Dark=#212121}"
+                   HorizontalTextAlignment="Center"/>
+        </Frame>
 
         <!-- Floating Action Button for Shake Discovery -->
         <Button Grid.Row="2"

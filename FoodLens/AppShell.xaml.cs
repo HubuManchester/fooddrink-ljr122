@@ -3,8 +3,7 @@
 namespace FoodLens;
 
 /// <summary>
-/// Shell configuration for app navigation.
-/// Registers routes for pages that are navigated to programmatically.
+/// Shell configuration and route registration for navigation.
 /// </summary>
 public partial class AppShell : Shell
 {
@@ -12,7 +11,7 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
-        // Register detail page route for programmatic navigation
+        // Register detail page route for navigation
         Routing.RegisterRoute(nameof(RecipeDetailPage), typeof(RecipeDetailPage));
     }
 }

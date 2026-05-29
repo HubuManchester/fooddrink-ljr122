@@ -1,3 +1,4 @@
+using FoodLens.Helpers;
 using FoodLens.Models;
 using FoodLens.Services;
 
@@ -13,6 +14,10 @@ public partial class MapPage : ContentPage
 {
     private readonly RecipeService _recipeService;
 
+    /// <summary>
+    /// Initialises the MapPage with the injected recipe service.
+    /// </summary>
+    /// <param name="recipeService">Service for loading recipe data.</param>
     public MapPage(RecipeService recipeService)
     {
         InitializeComponent();
@@ -46,9 +51,8 @@ public partial class MapPage : ContentPage
     {
         try
         {
-            // Haptic feedback on button press
-            try { HapticFeedback.Default.Perform(HapticFeedbackType.Click); }
-            catch (FeatureNotSupportedException) { }
+            // Haptic feedback on button press (HARDWARE: Haptic Feedback)
+            HardwareHelper.PerformHaptic(HapticFeedbackType.Click);
 
             LocationLabel.Text = "Getting your location...";
 
@@ -62,9 +66,8 @@ public partial class MapPage : ContentPage
                                     $"Longitude: {location.Longitude:F4}\n" +
                                     $"Altitude: {location.Altitude:F1}m";
 
-                // Vibration to confirm location acquired
-                try { Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(200)); }
-                catch (FeatureNotSupportedException) { }
+                // Vibration to confirm location acquired (HARDWARE: Vibration)
+                HardwareHelper.Vibrate(200);
             }
             else
             {
@@ -102,9 +105,8 @@ public partial class MapPage : ContentPage
         {
             if (sender is Button button && button.CommandParameter is Recipe recipe)
             {
-                // Haptic feedback
-                try { HapticFeedback.Default.Perform(HapticFeedbackType.Click); }
-                catch (FeatureNotSupportedException) { }
+                // Haptic feedback (HARDWARE: Haptic Feedback)
+                HardwareHelper.PerformHaptic(HapticFeedbackType.Click);
 
                 var location = new Location(recipe.Latitude, recipe.Longitude);
                 var options = new MapLaunchOptions

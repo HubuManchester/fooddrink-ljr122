@@ -10,16 +10,54 @@
     <ScrollView>
         <VerticalStackLayout Spacing="12" Padding="16">
 
-            <!-- Recipe Image -->
+            <!-- Recipe Image with Pinch-to-Zoom (FUNCTIONALITY: advanced gesture interaction) -->
             <Frame Padding="0"
                    CornerRadius="16"
                    HasShadow="True"
                    IsClippedToBounds="True"
                    HeightRequest="220"
-                   SemanticProperties.Description="{Binding Recipe.Name, StringFormat='Photo of {0}'}">
-                <Image Source="{Binding Recipe.ImageUrl}"
+                   IsVisible="{Binding Recipe.IsImageAvailable}"
+                   SemanticProperties.Description="{Binding Recipe.Name, StringFormat='Photo of {0}. Pinch to zoom in or out.'}">
+                <Image x:Name="RecipeImage"
+                       Source="{Binding Recipe.ImageUrl}"
                        Aspect="AspectFill"
-                       HeightRequest="220"/>
+                       HeightRequest="220">
+                    <Image.GestureRecognizers>
+                        <PinchGestureRecognizer PinchUpdated="OnPinchUpdated"/>
+                    </Image.GestureRecognizers>
+                </Image>
+            </Frame>
+
+            <!-- Zoom hint (only shown when image is available) -->
+            <Label Text="📌 Pinch the image to zoom in/out"
+                   FontSize="11"
+                   HorizontalOptions="Center"
+                   IsVisible="{Binding Recipe.IsImageAvailable}"
+                   TextColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"
+                   SemanticProperties.Description="Hint: you can pinch the recipe image to zoom in or out"/>
+
+            <!-- Image Error Message (VALIDATION: shown when image resource is unavailable) -->
+            <Frame Padding="16"
+                   CornerRadius="12"
+                   BackgroundColor="{AppThemeBinding Light=#FFEBEE, Dark=#4E342E}"
+                   BorderColor="{AppThemeBinding Light=#FFCDD2, Dark=#5D4037}"
+                   IsVisible="{Binding Recipe.IsImageAvailable, Converter={StaticResource InvertedBoolConverter}}">
+                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                    <Label Text="⚠️"
+                           FontSize="40"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Image Could Not Be Loaded"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#C62828, Dark=#EF9A9A}"
+                           SemanticProperties.HeadingLevel="Level3"/>
+                    <Label Text="{Binding Recipe.ImageErrorMessage}"
+                           FontSize="13"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{AppThemeBinding Light=#D32F2F, Dark=#FFCDD2}"
+                           SemanticProperties.Description="Warning: recipe image could not be loaded. This may be due to a missing resource."/>
+                </VerticalStackLayout>
             </Frame>
 
             <!-- Recipe Title and Origin -->
@@ -138,6 +176,69 @@
                         SemanticProperties.Description="Share this recipe with others"
                         SemanticProperties.Hint="Tap to share this recipe via messaging or social media"/>
             </Grid>
+
+            <!-- Add to Shopping List Section (FUNCTIONALITY + VALIDATION) -->
+            <Frame Padding="16"
+                   CornerRadius="12"
+                   BackgroundColor="{AppThemeBinding Light=#FFF8E1, Dark=#3E2723}"
+                   BorderColor="{AppThemeBinding Light=#FFE082, Dark=#5D4037}"
+                   Margin="0,4">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="🛒 Add Ingredients to Shopping List"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                           SemanticProperties.HeadingLevel="Level2"/>
+
+                    <Label Text="Enter the number of servings to calculate ingredient quantities."
+                           FontSize="13"
+                           TextColor="{AppThemeBinding Light=#616161, Dark=#BDBDBD}"/>
+
+                    <!-- Servings Input with Validation -->
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <Entry Grid.Column="0"
+                               x:Name="ServingsEntry"
+                               Placeholder="Number of servings (1-20)"
+                               Keyboard="Numeric"
+                               Text="{Binding ShoppingServingsInput}"
+                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                               BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2C}"
+                               PlaceholderColor="Gray"
+                               SemanticProperties.Description="Enter number of servings for shopping list"
+                               SemanticProperties.Hint="Type a number between 1 and 20"/>
+                        <Button Grid.Column="1"
+                                Text="🛒 Add"
+                                Command="{Binding AddToShoppingListCommand}"
+                                BackgroundColor="{StaticResource PrimaryColor}"
+                                TextColor="White"
+                                CornerRadius="10"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                Padding="16,10"
+                                SemanticProperties.Description="Add ingredients to shopping list"
+                                SemanticProperties.Hint="Tap to add all ingredients to your shopping list"/>
+                    </Grid>
+
+                    <!-- Validation Error Message -->
+                    <Label Text="{Binding ShoppingValidationMessage}"
+                           FontSize="12"
+                           TextColor="{StaticResource ErrorColor}"
+                           IsVisible="{Binding ShoppingValidationMessage, Converter={StaticResource IsStringNotNullOrEmptyConverter}}"
+                           SemanticProperties.Description="{Binding ShoppingValidationMessage}"/>
+
+                    <!-- Success Message -->
+                    <Frame Padding="10"
+                           CornerRadius="8"
+                           BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
+                           BorderColor="Transparent"
+                           IsVisible="{Binding ShoppingSuccessMessage, Converter={StaticResource IsStringNotNullOrEmptyConverter}}">
+                        <Label Text="{Binding ShoppingSuccessMessage}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#2E7D32, Dark=#A5D6A7}"
+                               SemanticProperties.Description="{Binding ShoppingSuccessMessage}"/>
+                    </Frame>
+                </VerticalStackLayout>
+            </Frame>
 
             <!-- Nutrition Info Section -->
             <Frame Padding="12"
