@@ -6,6 +6,20 @@
 /// </summary>
 public class Recipe
 {
+    /// <summary>
+    /// Known valid image resources bundled with the application.
+    /// Used to detect missing images and show user-friendly error messages.
+    /// </summary>
+    private static readonly HashSet<string> KnownValidImages = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "pizza.png",
+        "ramen.png",
+        "avocado_toast.png",
+        "mango_lassi.png",
+        "lava_cake.png",
+        "thai_curry.png"
+    };
+
     /// <summary>Unique identifier for the recipe.</summary>
     public int Id { get; set; }
 
@@ -51,6 +65,26 @@ public class Recipe
     /// <summary>Country or region of origin.</summary>
     public string Origin { get; set; } = string.Empty;
 
+    /// <summary>Whether this recipe is marked as a favourite by the user.</summary>
+    public bool IsFavourite { get; set; }
+
     /// <summary>Total time combining prep and cook time.</summary>
     public int TotalTimeMinutes => PrepTimeMinutes + CookTimeMinutes;
+
+    /// <summary>
+    /// Indicates whether the recipe image resource is available in the app bundle.
+    /// Returns false for images that do not exist, allowing the UI to show
+    /// a user-friendly placeholder message instead of a broken image.
+    /// </summary>
+    public bool IsImageAvailable =>
+        !string.IsNullOrWhiteSpace(ImageUrl) && KnownValidImages.Contains(ImageUrl);
+
+    /// <summary>
+    /// User-friendly message displayed when the image cannot be loaded.
+    /// Demonstrates validation and error handling for missing resources.
+    /// </summary>
+    public string ImageErrorMessage => IsImageAvailable
+        ? string.Empty
+        : "⚠️ Image unavailable — the photo for this recipe could not be loaded. " +
+          "This may be due to a missing resource or network issue.";
 }

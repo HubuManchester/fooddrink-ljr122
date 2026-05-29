@@ -27,8 +27,25 @@
             <Color x:Key="TextPrimaryDark">#FFFFFF</Color>
             <Color x:Key="TextSecondaryDark">#B0B0B0</Color>
 
+            <!-- High Contrast Colours (WCAG AAA 7:1 ratio) -->
+            <Color x:Key="HighContrastBackground">#000000</Color>
+            <Color x:Key="HighContrastText">#FFFFFF</Color>
+            <Color x:Key="HighContrastPrimary">#00E676</Color>
+            <Color x:Key="HighContrastBorder">#FFFFFF</Color>
+
+            <!-- Dynamic Font Size Resources (updated at runtime by SettingsViewModel).
+                 Using DynamicResource in XAML allows these to change without restarting the app.
+                 Base sizes follow WCAG 1.4.4 Resize Text — scalable up to 200%. -->
+            <x:Double x:Key="FontSizeCaption">12</x:Double>
+            <x:Double x:Key="FontSizeBody">14</x:Double>
+            <x:Double x:Key="FontSizeSubtitle">16</x:Double>
+            <x:Double x:Key="FontSizeHeader">18</x:Double>
+            <x:Double x:Key="FontSizeTitle">24</x:Double>
+            <x:Double x:Key="FontSizePageTitle">26</x:Double>
+
             <!-- Value Converters -->
             <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+            <toolkit:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrEmptyConverter"/>
 
         </ResourceDictionary>
     </Application.Resources>
