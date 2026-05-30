@@ -3,25 +3,43 @@
 namespace FoodLens.ViewModels;
 
 /// <summary>
-/// Base view model providing common properties for all view models.
-/// Uses CommunityToolkit.Mvvm source generators for observable properties.
+/// Base view model providing shared properties and behaviour for all ViewModels.
+/// Inherits from <see cref="ObservableObject"/> (CommunityToolkit.Mvvm) so that
+/// derived classes can use [ObservableProperty] source generators.
+///
+/// Follows the KISS principle — only contains what every ViewModel needs:
+/// IsBusy for loading state and Title for the navigation bar.
+/// All other responsibilities belong in the concrete ViewModel subclass.
 /// </summary>
 public partial class BaseViewModel : ObservableObject
 {
-    /// <summary>Indicates whether data is currently loading.</summary>
+    /// <summary>
+    /// Indicates whether an asynchronous operation is currently in progress.
+    /// Bound to ActivityIndicator.IsRunning and Button.IsEnabled (via IsNotBusy)
+    /// to give the user visual feedback and prevent duplicate actions.
+    /// </summary>
     [ObservableProperty]
     private bool _isBusy;
 
-    /// <summary>Page title for navigation bar.</summary>
+    /// <summary>
+    /// Page title displayed in the navigation bar.
+    /// Each concrete ViewModel sets this in its constructor.
+    /// </summary>
     [ObservableProperty]
     private string _title = string.Empty;
 
-    /// <summary>Inverse of IsBusy for binding enabled states.</summary>
+    /// <summary>
+    /// Inverse of <see cref="IsBusy"/> used to enable/disable UI controls via binding.
+    /// Exposed as a computed property rather than a separate observable field
+    /// to keep the single source of truth in IsBusy (DRY principle).
+    /// </summary>
     public bool IsNotBusy => !IsBusy;
 
     /// <summary>
-    /// Notifies the UI that IsNotBusy has changed whenever IsBusy changes.
-    /// Ensures bound controls update correctly.
+    /// Called by the source-generated setter whenever <see cref="IsBusy"/> changes.
+    /// Raises a property-changed notification for <see cref="IsNotBusy"/> so that
+    /// any controls bound to IsNotBusy also update when IsBusy is toggled.
+    /// Without this, IsNotBusy would never notify the UI of its value change.
     /// </summary>
     /// <param name="value">The new value of IsBusy.</param>
     partial void OnIsBusyChanged(bool value)

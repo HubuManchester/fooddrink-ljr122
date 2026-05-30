@@ -48,10 +48,10 @@ public class Recipe
     public string Difficulty { get; set; } = string.Empty;
 
     /// <summary>List of ingredients required.</summary>
-    public List<string> Ingredients { get; set; } = new();
+    public List<string> Ingredients { get; init; } = new();
 
     /// <summary>Step-by-step cooking instructions.</summary>
-    public List<string> Steps { get; set; } = new();
+    public List<string> Steps { get; init; } = new();
 
     /// <summary>Nutritional information per serving.</summary>
     public NutritionInfo Nutrition { get; set; } = new();

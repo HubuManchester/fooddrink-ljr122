@@ -48,6 +48,7 @@ public static class MauiProgram
         builder.Services.AddTransient<RecipeDetailViewModel>();
         builder.Services.AddTransient<CameraViewModel>();
         builder.Services.AddSingleton<SettingsViewModel>();
+        builder.Services.AddTransient<CompassViewModel>();
 
         // Register Pages
         builder.Services.AddSingleton<RecipesPage>();
@@ -56,6 +57,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<MapPage>();
         builder.Services.AddSingleton<SettingsPage>();
         builder.Services.AddTransient<HelpPage>();
+        builder.Services.AddTransient<CompassPage>();
 
         return builder.Build();
     }

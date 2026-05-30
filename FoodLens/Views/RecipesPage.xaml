@@ -6,25 +6,25 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="FoodLens.Views.RecipesPage"
              x:DataType="viewmodels:RecipesViewModel"
-             Title="{Binding Title}"
-             BackgroundColor="{AppThemeBinding Light={StaticResource BackgroundLight}, Dark={StaticResource BackgroundDark}}">
+             Title="{Binding Title}">
 
-    <Grid RowDefinitions="Auto,Auto,*"
+    <Grid BackgroundColor="{DynamicResource PageBackgroundColor}"
+          RowDefinitions="Auto,Auto,*"
           Padding="10"
           RowSpacing="10">
 
-        <!-- Search Bar with accessibility support -->
+        <!-- Search Bar -->
         <SearchBar Grid.Row="0"
                    Placeholder="Search recipes..."
                    Text="{Binding SearchText}"
                    SearchCommand="{Binding GetRecipesCommand}"
-                   BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2C2C2C}"
-                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                   BackgroundColor="{DynamicResource CardBackgroundColor}"
+                   TextColor="{DynamicResource TextPrimaryColor}"
                    PlaceholderColor="Gray"
                    SemanticProperties.Hint="Search for recipes by name or description"
                    SemanticProperties.Description="Recipe search box"/>
 
-        <!-- Category Filter - Horizontal ScrollView with proper command bindings -->
+        <!-- Category Filter -->
         <ScrollView Grid.Row="1"
                     Orientation="Horizontal"
                     HorizontalScrollBarVisibility="Never">
@@ -33,8 +33,8 @@
                 <Button Text="All"
                         Command="{Binding FilterByCategoryCommand}"
                         CommandParameter="All"
-                        BackgroundColor="{StaticResource PrimaryColor}"
-                        TextColor="White"
+                        BackgroundColor="{DynamicResource PrimaryColor}"
+                        TextColor="{DynamicResource ButtonTextColor}"
                         CornerRadius="20"
                         Padding="16,8"
                         FontSize="14"
@@ -42,8 +42,8 @@
                 <Button Text="Breakfast"
                         Command="{Binding FilterByCategoryCommand}"
                         CommandParameter="Breakfast"
-                        BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
-                        TextColor="{AppThemeBinding Light=#1B5E20, Dark=#E8F5E9}"
+                        BackgroundColor="{DynamicResource InfoBackgroundColor}"
+                        TextColor="{DynamicResource TextPrimaryColor}"
                         CornerRadius="20"
                         Padding="16,8"
                         FontSize="14"
@@ -51,8 +51,8 @@
                 <Button Text="Dinner"
                         Command="{Binding FilterByCategoryCommand}"
                         CommandParameter="Dinner"
-                        BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
-                        TextColor="{AppThemeBinding Light=#1B5E20, Dark=#E8F5E9}"
+                        BackgroundColor="{DynamicResource InfoBackgroundColor}"
+                        TextColor="{DynamicResource TextPrimaryColor}"
                         CornerRadius="20"
                         Padding="16,8"
                         FontSize="14"
@@ -60,8 +60,8 @@
                 <Button Text="Dessert"
                         Command="{Binding FilterByCategoryCommand}"
                         CommandParameter="Dessert"
-                        BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
-                        TextColor="{AppThemeBinding Light=#1B5E20, Dark=#E8F5E9}"
+                        BackgroundColor="{DynamicResource InfoBackgroundColor}"
+                        TextColor="{DynamicResource TextPrimaryColor}"
                         CornerRadius="20"
                         Padding="16,8"
                         FontSize="14"
@@ -69,8 +69,8 @@
                 <Button Text="Drinks"
                         Command="{Binding FilterByCategoryCommand}"
                         CommandParameter="Drinks"
-                        BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
-                        TextColor="{AppThemeBinding Light=#1B5E20, Dark=#E8F5E9}"
+                        BackgroundColor="{DynamicResource InfoBackgroundColor}"
+                        TextColor="{DynamicResource TextPrimaryColor}"
                         CornerRadius="20"
                         Padding="16,8"
                         FontSize="14"
@@ -78,11 +78,7 @@
             </HorizontalStackLayout>
         </ScrollView>
 
-        <!-- Recipe List with SwipeView for swipe-to-favourite gesture -->
-        <!-- FIX: Changed IsRefreshing binding to Mode=OneWay.
-             The default TwoWay binding caused the RefreshView to set IsBusy=true
-             BEFORE the command executed, triggering the guard clause and preventing
-             IsBusy from ever being reset to false (infinite spinner). -->
+        <!-- Recipe List with SwipeView -->
         <RefreshView Grid.Row="2"
                      Command="{Binding GetRecipesCommand}"
                      IsRefreshing="{Binding IsBusy, Mode=OneWay}"
@@ -92,7 +88,6 @@
                             SelectionMode="None"
                             SemanticProperties.Description="List of available recipes">
 
-                <!-- Empty state when no recipes found -->
                 <CollectionView.EmptyView>
                     <StackLayout Padding="20"
                                  VerticalOptions="Center"
@@ -101,21 +96,20 @@
                                FontSize="48"
                                HorizontalOptions="Center"/>
                         <Label Text="No recipes found"
-                               FontSize="18"
+                               FontSize="{DynamicResource FontSizeHeader}"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"
-                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                               TextColor="{DynamicResource TextPrimaryColor}"
                                SemanticProperties.HeadingLevel="Level2"/>
                         <Label Text="Try a different search term or category"
-                               FontSize="14"
+                               FontSize="{DynamicResource FontSizeBody}"
                                HorizontalOptions="Center"
-                               TextColor="Gray"/>
+                               TextColor="{DynamicResource TextSecondaryColor}"/>
                     </StackLayout>
                 </CollectionView.EmptyView>
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Recipe">
-                        <!-- SwipeView: Swipe right to favourite, swipe left to share -->
                         <SwipeView>
                             <SwipeView.LeftItems>
                                 <SwipeItems Mode="Execute">
@@ -138,8 +132,8 @@
                                    Padding="0"
                                    CornerRadius="12"
                                    HasShadow="True"
-                                   BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource SurfaceDark}}"
-                                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                                   BackgroundColor="{DynamicResource CardBackgroundColor}"
+                                   BorderColor="{DynamicResource BorderColor}"
                                    SemanticProperties.Description="{Binding Name}">
 
                                 <Frame.GestureRecognizers>
@@ -151,9 +145,8 @@
                                 <Grid ColumnDefinitions="120,*"
                                       RowDefinitions="Auto">
 
-                                    <!-- Recipe Image with error handling for missing images -->
+                                    <!-- Recipe Image -->
                                     <Grid Grid.Column="0">
-                                        <!-- Show image when available -->
                                         <Image Source="{Binding ImageUrl}"
                                                Aspect="AspectFill"
                                                HeightRequest="100"
@@ -161,9 +154,8 @@
                                                IsVisible="{Binding IsImageAvailable}"
                                                SemanticProperties.Description="{Binding Name, StringFormat='Photo of {0}'}"/>
 
-                                        <!-- Show error placeholder when image is NOT available -->
                                         <Frame IsVisible="{Binding IsImageAvailable, Converter={StaticResource InvertedBoolConverter}}"
-                                               BackgroundColor="{AppThemeBinding Light=#FFEBEE, Dark=#4E342E}"
+                                               BackgroundColor="{DynamicResource CardBackgroundColor}"
                                                Padding="8"
                                                CornerRadius="0"
                                                HeightRequest="100"
@@ -178,7 +170,7 @@
                                                 <Label Text="Image not available"
                                                        FontSize="10"
                                                        HorizontalTextAlignment="Center"
-                                                       TextColor="{AppThemeBinding Light=#C62828, Dark=#EF9A9A}"
+                                                       TextColor="{DynamicResource ErrorColor}"
                                                        SemanticProperties.Description="Recipe image could not be loaded"/>
                                             </VerticalStackLayout>
                                         </Frame>
@@ -191,37 +183,36 @@
                                                          VerticalOptions="Center">
 
                                         <Label Text="{Binding Name}"
-                                               FontSize="16"
+                                               FontSize="{DynamicResource FontSizeSubtitle}"
                                                FontAttributes="Bold"
-                                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                                               TextColor="{DynamicResource TextPrimaryColor}"
                                                MaxLines="1"
                                                LineBreakMode="TailTruncation"
                                                SemanticProperties.HeadingLevel="Level3"/>
 
                                         <Label Text="{Binding Description}"
-                                               FontSize="13"
-                                               TextColor="Gray"
+                                               FontSize="{DynamicResource FontSizeCaption}"
+                                               TextColor="{DynamicResource TextSecondaryColor}"
                                                MaxLines="2"
                                                LineBreakMode="TailTruncation"/>
 
                                         <HorizontalStackLayout Spacing="12">
                                             <Label Text="{Binding TotalTimeMinutes, StringFormat='⏱️ {0} min'}"
-                                                   FontSize="12"
-                                                   TextColor="{StaticResource PrimaryColor}"
+                                                   FontSize="{DynamicResource FontSizeCaption}"
+                                                   TextColor="{DynamicResource PrimaryColor}"
                                                    SemanticProperties.Description="{Binding TotalTimeMinutes, StringFormat='Total cooking time {0} minutes'}"/>
                                             <Label Text="{Binding Difficulty, StringFormat='📊 {0}'}"
-                                                   FontSize="12"
-                                                   TextColor="{StaticResource SecondaryColor}"
+                                                   FontSize="{DynamicResource FontSizeCaption}"
+                                                   TextColor="{DynamicResource SecondaryColor}"
                                                    SemanticProperties.Description="{Binding Difficulty, StringFormat='Difficulty level {0}'}"/>
                                             <Label Text="{Binding Category}"
-                                                   FontSize="12"
-                                                   TextColor="Gray"/>
+                                                   FontSize="{DynamicResource FontSizeCaption}"
+                                                   TextColor="{DynamicResource TextSecondaryColor}"/>
                                         </HorizontalStackLayout>
 
-                                        <!-- Swipe hint for discoverability -->
                                         <Label Text="← Swipe to favourite | Share →"
                                                FontSize="10"
-                                               TextColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"
+                                               TextColor="{DynamicResource TextSecondaryColor}"
                                                IsVisible="{Binding IsFavourite, Converter={StaticResource InvertedBoolConverter}}"/>
                                         <Label Text="❤️ Favourited"
                                                FontSize="10"
@@ -239,7 +230,7 @@
         <!-- Toast Notification Overlay -->
         <Frame Grid.Row="2"
                IsVisible="{Binding IsToastVisible}"
-               BackgroundColor="{AppThemeBinding Light=#323232, Dark=#E0E0E0}"
+               BackgroundColor="{DynamicResource CardBackgroundColor}"
                CornerRadius="24"
                Padding="16,10"
                HorizontalOptions="Center"
@@ -249,20 +240,20 @@
                BorderColor="Transparent"
                SemanticProperties.Description="{Binding ToastMessage}">
             <Label Text="{Binding ToastMessage}"
-                   FontSize="14"
-                   TextColor="{AppThemeBinding Light=White, Dark=#212121}"
+                   FontSize="{DynamicResource FontSizeBody}"
+                   TextColor="{DynamicResource TextPrimaryColor}"
                    HorizontalTextAlignment="Center"/>
         </Frame>
 
-        <!-- Floating Action Button for Shake Discovery -->
+        <!-- Floating Action Button -->
         <Button Grid.Row="2"
                 Text="🎲"
                 FontSize="24"
                 WidthRequest="60"
                 HeightRequest="60"
                 CornerRadius="30"
-                BackgroundColor="{StaticResource SecondaryColor}"
-                TextColor="White"
+                BackgroundColor="{DynamicResource SecondaryColor}"
+                TextColor="{DynamicResource ButtonTextColor}"
                 HorizontalOptions="End"
                 VerticalOptions="End"
                 Margin="0,0,16,16"

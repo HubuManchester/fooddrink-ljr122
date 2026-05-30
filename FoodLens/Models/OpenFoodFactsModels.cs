@@ -1,6 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace FoodLens.Services;
+// FIX (Roslyn): Namespace corrected from "FoodLens.Services" to "FoodLens.Models"
+// to match the file's folder location (Models/OpenFoodFactsModels.cs).
+// Mismatched namespaces are flagged by the IDE0130 analyser and make the type
+// harder to discover — types should always live in the namespace that mirrors
+// their folder path (Microsoft .NET naming conventions).
+namespace FoodLens.Models;
 
 /// <summary>
 /// Response model for the Open Food Facts search API endpoint.
@@ -15,7 +20,9 @@ public class OpenFoodFactsResponse
 
     /// <summary>List of product results returned by the search.</summary>
     [JsonPropertyName("products")]
-    public List<OpenFoodFactsProduct> Products { get; set; } = new();
+    // FIX (Roslyn IDE0028): Use collection expression [] instead of new List<T>() / new().
+    // The collection expression is more concise and is the preferred idiom in modern C#.
+    public List<OpenFoodFactsProduct> Products { get; init; } = [];
 }
 
 /// <summary>

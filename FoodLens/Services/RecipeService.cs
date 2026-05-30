@@ -5,6 +5,14 @@ namespace FoodLens.Services;
 /// <summary>
 /// Service responsible for providing recipe data to the application.
 /// Implements a repository pattern for data access with thread-safe caching.
+///
+/// Design decisions:
+/// - Uses a lock-based lazy initialisation pattern so the sample data is only
+///   generated once and cached for subsequent calls (avoids redundant work).
+/// - Simulates network latency on first load only, so the RefreshView spinner
+///   does not keep spinning on every category change or search update.
+/// - All public methods are asynchronous to allow future replacement with a
+///   real network or database source without changing the calling code (DRY).
 /// </summary>
 public class RecipeService
 {
@@ -14,26 +22,25 @@ public class RecipeService
     /// <summary>Thread-safe lock object for cache initialisation.</summary>
     private readonly object _cacheLock = new();
 
-    /// <summary>Shared Random instance to avoid Roslyn CA5394 warnings.</summary>
-    private static readonly Random SharedRandom = new();
-
     /// <summary>
     /// Retrieves all available recipes asynchronously.
-    /// Only simulates network delay on first load; subsequent calls return cached data instantly.
-    /// This fixes the issue where RefreshView spinner would keep spinning on every access.
+    /// Only simulates a network delay on first load; subsequent calls return
+    /// cached data instantly to avoid a perpetual RefreshView spinner.
     /// </summary>
-    /// <returns>A list of all recipes.</returns>
+    /// <returns>A list of all available recipes.</returns>
     public async Task<List<Recipe>> GetRecipesAsync()
     {
         bool needsDelay;
 
+        // Thread-safe lazy initialisation using a lock to prevent multiple
+        // threads from calling GenerateSampleRecipes() simultaneously.
         lock (_cacheLock)
         {
             needsDelay = _recipes is null;
             _recipes ??= GenerateSampleRecipes();
         }
 
-        // Only simulate network latency on first load to avoid perpetual spinner
+        // Only simulate network latency on the very first load
         if (needsDelay)
         {
             await Task.Delay(300).ConfigureAwait(false);
@@ -43,10 +50,12 @@ public class RecipeService
     }
 
     /// <summary>
-    /// Retrieves a single recipe by its unique ID.
+    /// Retrieves a single recipe by its unique identifier.
+    /// Returns null if no recipe with the given ID exists, allowing the caller
+    /// to handle missing data gracefully without catching an exception.
     /// </summary>
     /// <param name="id">The recipe ID to search for.</param>
-    /// <returns>The matching recipe, or null if not found.</returns>
+    /// <returns>The matching <see cref="Recipe"/>, or null if not found.</returns>
     public async Task<Recipe?> GetRecipeByIdAsync(int id)
     {
         var recipes = await GetRecipesAsync().ConfigureAwait(false);
@@ -55,20 +64,25 @@ public class RecipeService
 
     /// <summary>
     /// Returns a random recipe for the shake-to-discover feature.
+    /// Uses <see cref="Random.Shared"/> which is thread-safe and avoids the
+    /// duplicate-sequence problem of creating a new Random() per call (CA5394).
     /// </summary>
-    /// <returns>A randomly selected recipe.</returns>
+    /// <returns>A randomly selected <see cref="Recipe"/>.</returns>
     public async Task<Recipe> GetRandomRecipeAsync()
     {
         var recipes = await GetRecipesAsync().ConfigureAwait(false);
-        int index = SharedRandom.Next(recipes.Count);
+
+        // Random.Shared is the recommended way to get a shared thread-safe instance
+        int index = Random.Shared.Next(recipes.Count);
         return recipes[index];
     }
 
     /// <summary>
-    /// Filters recipes by category.
+    /// Filters recipes by category using case-insensitive comparison.
+    /// Passing "All" or an empty string returns the full unfiltered list.
     /// </summary>
     /// <param name="category">The category to filter by, or "All" for no filter.</param>
-    /// <returns>A filtered list of recipes.</returns>
+    /// <returns>A filtered list of <see cref="Recipe"/> objects.</returns>
     public async Task<List<Recipe>> GetRecipesByCategoryAsync(string category)
     {
         var recipes = await GetRecipesAsync().ConfigureAwait(false);
@@ -85,9 +99,10 @@ public class RecipeService
 
     /// <summary>
     /// Searches recipes by name or description using case-insensitive matching.
+    /// An empty or whitespace search term returns all recipes unchanged.
     /// </summary>
     /// <param name="searchTerm">The text to search for.</param>
-    /// <returns>A list of matching recipes.</returns>
+    /// <returns>A list of <see cref="Recipe"/> objects whose name or description matches.</returns>
     public async Task<List<Recipe>> SearchRecipesAsync(string searchTerm)
     {
         var recipes = await GetRecipesAsync().ConfigureAwait(false);
@@ -106,6 +121,8 @@ public class RecipeService
 
     /// <summary>
     /// Toggles the favourite status of a recipe by ID.
+    /// Throws <see cref="InvalidOperationException"/> if the ID is not found,
+    /// so the caller receives a meaningful exception rather than a silent failure.
     /// </summary>
     /// <param name="recipeId">The ID of the recipe to toggle.</param>
     /// <returns>True if the recipe is now a favourite, false otherwise.</returns>
@@ -125,15 +142,21 @@ public class RecipeService
     }
 
     /// <summary>
-    /// Generates sample recipe data for the application.
-    /// Includes one recipe (ID 7) with a deliberately missing image
-    /// to demonstrate graceful error handling for broken resources.
+    /// Generates the in-memory sample recipe dataset for the application.
+    ///
+    /// Recipe 7 (Sushi Platter) deliberately uses a non-existent image path
+    /// ("sushi_platter.png") to demonstrate graceful error handling for missing
+    /// image resources. The Recipe.IsImageAvailable property detects this and
+    /// the UI shows a user-friendly placeholder instead of a broken image.
+    ///
+    /// Uses collection expression syntax ([]) rather than new List&lt;T&gt;()
+    /// to satisfy Roslyn IDE0028 and reduce unnecessary verbosity.
     /// </summary>
-    /// <returns>A list of sample recipes.</returns>
+    /// <returns>A list of sample <see cref="Recipe"/> objects.</returns>
     private static List<Recipe> GenerateSampleRecipes()
     {
-        return new List<Recipe>
-        {
+        return
+        [
             new Recipe
             {
                 Id = 1,
@@ -145,8 +168,8 @@ public class RecipeService
                 CookTimeMinutes = 15,
                 Servings = 4,
                 Difficulty = "Medium",
-                Ingredients = new List<string>
-                {
+                Ingredients =
+                [
                     "500g strong bread flour",
                     "7g dried yeast",
                     "1 tsp salt",
@@ -156,9 +179,9 @@ public class RecipeService
                     "400g canned San Marzano tomatoes",
                     "Fresh basil leaves",
                     "2 cloves garlic"
-                },
-                Steps = new List<string>
-                {
+                ],
+                Steps =
+                [
                     "Mix flour, yeast, and salt in a large bowl.",
                     "Add warm water and olive oil, knead for 10 minutes until smooth.",
                     "Cover and let dough rise for 1 hour until doubled in size.",
@@ -169,7 +192,7 @@ public class RecipeService
                     "Tear mozzarella and distribute over the pizza.",
                     "Bake for 12 to 15 minutes until golden and bubbly.",
                     "Top with fresh basil leaves before serving."
-                },
+                ],
                 Nutrition = new NutritionInfo
                 {
                     Calories = 285,
@@ -193,8 +216,8 @@ public class RecipeService
                 CookTimeMinutes = 45,
                 Servings = 2,
                 Difficulty = "Hard",
-                Ingredients = new List<string>
-                {
+                Ingredients =
+                [
                     "200g fresh ramen noodles",
                     "3 tbsp white miso paste",
                     "1 litre chicken stock",
@@ -205,9 +228,9 @@ public class RecipeService
                     "Spring onions",
                     "Nori sheets",
                     "Sweetcorn"
-                },
-                Steps = new List<string>
-                {
+                ],
+                Steps =
+                [
                     "Marinate pork belly in soy sauce and mirin for 30 minutes.",
                     "Sear pork then braise in oven at 160 degrees for 2 hours.",
                     "Boil eggs for 6.5 minutes for soft centre, then peel.",
@@ -218,7 +241,7 @@ public class RecipeService
                     "Divide noodles between bowls, pour over broth.",
                     "Top with pork, halved egg, spring onions, nori, and sweetcorn.",
                     "Drizzle with sesame oil and serve immediately."
-                },
+                ],
                 Nutrition = new NutritionInfo
                 {
                     Calories = 520,
@@ -242,8 +265,8 @@ public class RecipeService
                 CookTimeMinutes = 5,
                 Servings = 2,
                 Difficulty = "Easy",
-                Ingredients = new List<string>
-                {
+                Ingredients =
+                [
                     "2 slices sourdough bread",
                     "1 ripe avocado",
                     "2 fresh eggs",
@@ -251,9 +274,9 @@ public class RecipeService
                     "Salt and pepper",
                     "Chilli flakes",
                     "Lemon juice"
-                },
-                Steps = new List<string>
-                {
+                ],
+                Steps =
+                [
                     "Toast sourdough bread until golden and crispy.",
                     "Halve avocado, remove stone, scoop into a bowl.",
                     "Mash avocado with lemon juice, salt, and pepper.",
@@ -264,7 +287,7 @@ public class RecipeService
                     "Place poached egg on top of each toast.",
                     "Season with salt, pepper, and chilli flakes.",
                     "Serve immediately while warm."
-                },
+                ],
                 Nutrition = new NutritionInfo
                 {
                     Calories = 320,
@@ -288,8 +311,8 @@ public class RecipeService
                 CookTimeMinutes = 0,
                 Servings = 2,
                 Difficulty = "Easy",
-                Ingredients = new List<string>
-                {
+                Ingredients =
+                [
                     "2 ripe mangoes",
                     "200ml natural yoghurt",
                     "100ml whole milk",
@@ -297,9 +320,9 @@ public class RecipeService
                     "Quarter tsp ground cardamom",
                     "Ice cubes",
                     "Pinch of saffron"
-                },
-                Steps = new List<string>
-                {
+                ],
+                Steps =
+                [
                     "Peel and chop mangoes into chunks.",
                     "Add mango, yoghurt, and milk to a blender.",
                     "Add honey and ground cardamom.",
@@ -309,7 +332,7 @@ public class RecipeService
                     "Pour into tall glasses.",
                     "Garnish with saffron or cardamom on top.",
                     "Serve immediately while cold."
-                },
+                ],
                 Nutrition = new NutritionInfo
                 {
                     Calories = 210,
@@ -333,8 +356,8 @@ public class RecipeService
                 CookTimeMinutes = 12,
                 Servings = 4,
                 Difficulty = "Medium",
-                Ingredients = new List<string>
-                {
+                Ingredients =
+                [
                     "200g dark chocolate 70% cocoa",
                     "150g unsalted butter",
                     "3 large eggs",
@@ -343,9 +366,9 @@ public class RecipeService
                     "50g plain flour",
                     "Butter and cocoa for greasing",
                     "Vanilla ice cream to serve"
-                },
-                Steps = new List<string>
-                {
+                ],
+                Steps =
+                [
                     "Preheat oven to 200 degrees Celsius.",
                     "Melt chocolate and butter over simmering water.",
                     "Whisk eggs, yolks, and sugar until thick and pale.",
@@ -356,7 +379,7 @@ public class RecipeService
                     "Bake for exactly 12 minutes until edges firm but centre soft.",
                     "Let stand 1 minute then invert onto plates.",
                     "Serve immediately with vanilla ice cream."
-                },
+                ],
                 Nutrition = new NutritionInfo
                 {
                     Calories = 480,
@@ -380,8 +403,8 @@ public class RecipeService
                 CookTimeMinutes = 25,
                 Servings = 4,
                 Difficulty = "Medium",
-                Ingredients = new List<string>
-                {
+                Ingredients =
+                [
                     "400ml coconut milk",
                     "3 tbsp green curry paste",
                     "300g chicken breast",
@@ -392,9 +415,9 @@ public class RecipeService
                     "Thai basil leaves",
                     "2 kaffir lime leaves",
                     "Jasmine rice"
-                },
-                Steps = new List<string>
-                {
+                ],
+                Steps =
+                [
                     "Heat a wok over high heat.",
                     "Fry curry paste in coconut cream for 2 minutes.",
                     "Add sliced chicken and stir-fry until sealed.",
@@ -405,7 +428,7 @@ public class RecipeService
                     "Season with fish sauce and palm sugar.",
                     "Stir in Thai basil leaves.",
                     "Serve over steamed jasmine rice."
-                },
+                ],
                 Nutrition = new NutritionInfo
                 {
                     Calories = 380,
@@ -418,9 +441,10 @@ public class RecipeService
                 Longitude = 100.5018,
                 Origin = "Bangkok, Thailand"
             },
-            // Recipe 7: Deliberately uses a non-existent image resource to demonstrate
-            // graceful error handling when an image cannot be loaded.
-            // This addresses the "Validation and Error Handling" marking criterion.
+            // Recipe 7: Deliberately uses a non-existent image resource ("sushi_platter.png")
+            // to demonstrate graceful error handling for broken image resources.
+            // Recipe.IsImageAvailable detects this at runtime and the UI shows a
+            // user-friendly placeholder instead of a broken/blank image control.
             new Recipe
             {
                 Id = 7,
@@ -432,8 +456,8 @@ public class RecipeService
                 CookTimeMinutes = 20,
                 Servings = 3,
                 Difficulty = "Hard",
-                Ingredients = new List<string>
-                {
+                Ingredients =
+                [
                     "300g sushi-grade salmon",
                     "300g sushi-grade tuna",
                     "400g sushi rice",
@@ -444,9 +468,9 @@ public class RecipeService
                     "Pickled ginger",
                     "Soy sauce",
                     "Sesame seeds"
-                },
-                Steps = new List<string>
-                {
+                ],
+                Steps =
+                [
                     "Rinse sushi rice until water runs clear.",
                     "Cook rice and season with vinegar and sugar mixture.",
                     "Spread rice on a tray to cool to room temperature.",
@@ -457,7 +481,7 @@ public class RecipeService
                     "Add fillings and roll tightly using the mat.",
                     "Slice rolls with a wet knife into even pieces.",
                     "Arrange on a platter with wasabi, ginger, and soy sauce."
-                },
+                ],
                 Nutrition = new NutritionInfo
                 {
                     Calories = 310,
@@ -470,6 +494,6 @@ public class RecipeService
                 Longitude = 139.6503,
                 Origin = "Tokyo, Japan"
             }
-        };
+        ];
     }
 }

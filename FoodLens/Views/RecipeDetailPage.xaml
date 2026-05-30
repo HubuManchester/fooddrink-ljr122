@@ -4,333 +4,332 @@
              xmlns:viewmodels="clr-namespace:FoodLens.ViewModels"
              x:Class="FoodLens.Views.RecipeDetailPage"
              x:DataType="viewmodels:RecipeDetailViewModel"
-             Title="{Binding Recipe.Name}"
-             BackgroundColor="{AppThemeBinding Light={StaticResource BackgroundLight}, Dark={StaticResource BackgroundDark}}">
+             Title="{Binding Recipe.Name}">
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="12" Padding="16">
+    <Grid BackgroundColor="{DynamicResource PageBackgroundColor}">
+        <ScrollView>
+            <VerticalStackLayout Spacing="12" Padding="16">
 
-            <!-- Recipe Image with Pinch-to-Zoom (FUNCTIONALITY: advanced gesture interaction) -->
-            <Frame Padding="0"
-                   CornerRadius="16"
-                   HasShadow="True"
-                   IsClippedToBounds="True"
-                   HeightRequest="220"
-                   IsVisible="{Binding Recipe.IsImageAvailable}"
-                   SemanticProperties.Description="{Binding Recipe.Name, StringFormat='Photo of {0}. Pinch to zoom in or out.'}">
-                <Image x:Name="RecipeImage"
-                       Source="{Binding Recipe.ImageUrl}"
-                       Aspect="AspectFill"
-                       HeightRequest="220">
-                    <Image.GestureRecognizers>
-                        <PinchGestureRecognizer PinchUpdated="OnPinchUpdated"/>
-                    </Image.GestureRecognizers>
-                </Image>
-            </Frame>
+                <!-- Recipe Image with Pinch-to-Zoom -->
+                <Frame Padding="0"
+                       CornerRadius="16"
+                       HasShadow="True"
+                       IsClippedToBounds="True"
+                       HeightRequest="220"
+                       IsVisible="{Binding Recipe.IsImageAvailable}"
+                       SemanticProperties.Description="{Binding Recipe.Name, StringFormat='Photo of {0}. Pinch to zoom in or out.'}">
+                    <Image x:Name="RecipeImage"
+                           Source="{Binding Recipe.ImageUrl}"
+                           Aspect="AspectFill"
+                           HeightRequest="220">
+                        <Image.GestureRecognizers>
+                            <PinchGestureRecognizer PinchUpdated="OnPinchUpdated"/>
+                        </Image.GestureRecognizers>
+                    </Image>
+                </Frame>
 
-            <!-- Zoom hint (only shown when image is available) -->
-            <Label Text="📌 Pinch the image to zoom in/out"
-                   FontSize="11"
-                   HorizontalOptions="Center"
-                   IsVisible="{Binding Recipe.IsImageAvailable}"
-                   TextColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"
-                   SemanticProperties.Description="Hint: you can pinch the recipe image to zoom in or out"/>
+                <Label Text="📌 Pinch the image to zoom in/out"
+                       FontSize="11"
+                       HorizontalOptions="Center"
+                       IsVisible="{Binding Recipe.IsImageAvailable}"
+                       TextColor="{DynamicResource TextSecondaryColor}"
+                       SemanticProperties.Description="Hint: you can pinch the recipe image to zoom in or out"/>
 
-            <!-- Image Error Message (VALIDATION: shown when image resource is unavailable) -->
-            <Frame Padding="16"
-                   CornerRadius="12"
-                   BackgroundColor="{AppThemeBinding Light=#FFEBEE, Dark=#4E342E}"
-                   BorderColor="{AppThemeBinding Light=#FFCDD2, Dark=#5D4037}"
-                   IsVisible="{Binding Recipe.IsImageAvailable, Converter={StaticResource InvertedBoolConverter}}">
-                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                    <Label Text="⚠️"
-                           FontSize="40"
-                           HorizontalOptions="Center"/>
-                    <Label Text="Image Could Not Be Loaded"
-                           FontSize="16"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"
-                           TextColor="{AppThemeBinding Light=#C62828, Dark=#EF9A9A}"
-                           SemanticProperties.HeadingLevel="Level3"/>
-                    <Label Text="{Binding Recipe.ImageErrorMessage}"
-                           FontSize="13"
-                           HorizontalTextAlignment="Center"
-                           TextColor="{AppThemeBinding Light=#D32F2F, Dark=#FFCDD2}"
-                           SemanticProperties.Description="Warning: recipe image could not be loaded. This may be due to a missing resource."/>
-                </VerticalStackLayout>
-            </Frame>
-
-            <!-- Recipe Title and Origin -->
-            <Label Text="{Binding Recipe.Name}"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                   SemanticProperties.HeadingLevel="Level1"
-                   SemanticProperties.Description="{Binding Recipe.Name}"/>
-
-            <Label Text="{Binding Recipe.Origin, StringFormat='📍 Origin: {0}'}"
-                   FontSize="14"
-                   TextColor="{StaticResource PrimaryColor}"
-                   SemanticProperties.Description="{Binding Recipe.Origin, StringFormat='Recipe originates from {0}'}"/>
-
-            <!-- Quick Info Cards -->
-            <Grid ColumnDefinitions="*,*,*,*"
-                  ColumnSpacing="8"
-                  Margin="0,8">
-
-                <Frame Grid.Column="0" Padding="8" CornerRadius="10"
-                       BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
-                       BorderColor="Transparent">
-                    <VerticalStackLayout HorizontalOptions="Center">
-                        <Label Text="⏱️" FontSize="20" HorizontalOptions="Center"/>
-                        <Label Text="{Binding Recipe.PrepTimeMinutes, StringFormat='{0}m'}"
-                               FontSize="12" HorizontalOptions="Center"
-                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                               SemanticProperties.Description="{Binding Recipe.PrepTimeMinutes, StringFormat='Preparation time {0} minutes'}"/>
-                        <Label Text="Prep" FontSize="10" HorizontalOptions="Center" TextColor="Gray"/>
+                <!-- Image Error Message -->
+                <Frame Padding="16"
+                       CornerRadius="12"
+                       BackgroundColor="{DynamicResource CardBackgroundColor}"
+                       BorderColor="{DynamicResource ErrorColor}"
+                       IsVisible="{Binding Recipe.IsImageAvailable, Converter={StaticResource InvertedBoolConverter}}">
+                    <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <Label Text="⚠️"
+                               FontSize="40"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Image Could Not Be Loaded"
+                               FontSize="{DynamicResource FontSizeSubtitle}"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="{DynamicResource ErrorColor}"
+                               SemanticProperties.HeadingLevel="Level3"/>
+                        <Label Text="{Binding Recipe.ImageErrorMessage}"
+                               FontSize="{DynamicResource FontSizeCaption}"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{DynamicResource ErrorColor}"
+                               SemanticProperties.Description="Warning: recipe image could not be loaded. This may be due to a missing resource."/>
                     </VerticalStackLayout>
                 </Frame>
 
-                <Frame Grid.Column="1" Padding="8" CornerRadius="10"
-                       BackgroundColor="{AppThemeBinding Light=#FFF3E0, Dark=#E65100}"
-                       BorderColor="Transparent">
-                    <VerticalStackLayout HorizontalOptions="Center">
-                        <Label Text="🔥" FontSize="20" HorizontalOptions="Center"/>
-                        <Label Text="{Binding Recipe.CookTimeMinutes, StringFormat='{0}m'}"
-                               FontSize="12" HorizontalOptions="Center"
-                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                               SemanticProperties.Description="{Binding Recipe.CookTimeMinutes, StringFormat='Cooking time {0} minutes'}"/>
-                        <Label Text="Cook" FontSize="10" HorizontalOptions="Center" TextColor="Gray"/>
-                    </VerticalStackLayout>
-                </Frame>
+                <!-- Recipe Title and Origin -->
+                <Label Text="{Binding Recipe.Name}"
+                       FontSize="{DynamicResource FontSizeTitle}"
+                       FontAttributes="Bold"
+                       TextColor="{DynamicResource TextPrimaryColor}"
+                       SemanticProperties.HeadingLevel="Level1"
+                       SemanticProperties.Description="{Binding Recipe.Name}"/>
 
-                <Frame Grid.Column="2" Padding="8" CornerRadius="10"
-                       BackgroundColor="{AppThemeBinding Light=#E3F2FD, Dark=#0D47A1}"
-                       BorderColor="Transparent">
-                    <VerticalStackLayout HorizontalOptions="Center">
-                        <Label Text="🍽️" FontSize="20" HorizontalOptions="Center"/>
-                        <Label Text="{Binding Recipe.Servings, StringFormat='{0}'}"
-                               FontSize="12" HorizontalOptions="Center"
-                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                               SemanticProperties.Description="{Binding Recipe.Servings, StringFormat='Serves {0} people'}"/>
-                        <Label Text="Serves" FontSize="10" HorizontalOptions="Center" TextColor="Gray"/>
-                    </VerticalStackLayout>
-                </Frame>
+                <Label Text="{Binding Recipe.Origin, StringFormat='📍 Origin: {0}'}"
+                       FontSize="{DynamicResource FontSizeBody}"
+                       TextColor="{DynamicResource PrimaryColor}"
+                       SemanticProperties.Description="{Binding Recipe.Origin, StringFormat='Recipe originates from {0}'}"/>
 
-                <Frame Grid.Column="3" Padding="8" CornerRadius="10"
-                       BackgroundColor="{AppThemeBinding Light=#FCE4EC, Dark=#880E4F}"
-                       BorderColor="Transparent">
-                    <VerticalStackLayout HorizontalOptions="Center">
-                        <Label Text="📊" FontSize="20" HorizontalOptions="Center"/>
-                        <Label Text="{Binding Recipe.Difficulty}"
-                               FontSize="12" HorizontalOptions="Center"
-                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                               SemanticProperties.Description="{Binding Recipe.Difficulty, StringFormat='Difficulty level is {0}'}"/>
-                        <Label Text="Level" FontSize="10" HorizontalOptions="Center" TextColor="Gray"/>
-                    </VerticalStackLayout>
-                </Frame>
-            </Grid>
+                <!-- Quick Info Cards -->
+                <Grid ColumnDefinitions="*,*,*,*"
+                      ColumnSpacing="8"
+                      Margin="0,8">
 
-            <!-- Description -->
-            <Label Text="{Binding Recipe.Description}"
-                   FontSize="15"
-                   TextColor="{AppThemeBinding Light=#424242, Dark=#BDBDBD}"
-                   Margin="0,4"/>
-
-            <!-- Action Buttons Row -->
-            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" Margin="0,8">
-
-                <!-- Text-to-Speech Button (HARDWARE: TTS) -->
-                <Button Grid.Column="0"
-                        Text="{Binding SpeakButtonText}"
-                        Command="{Binding ToggleSpeakStepsCommand}"
-                        BackgroundColor="{StaticResource PrimaryColor}"
-                        TextColor="White"
-                        CornerRadius="10"
-                        FontSize="12"
-                        Padding="8,12"
-                        SemanticProperties.Description="Read recipe steps aloud using text to speech"
-                        SemanticProperties.Hint="Tap to hear the recipe steps read aloud"/>
-
-                <!-- Map Button (HARDWARE: Geolocation) -->
-                <Button Grid.Column="1"
-                        Text="🗺️ Origin Map"
-                        Command="{Binding OpenMapCommand}"
-                        BackgroundColor="{StaticResource SecondaryColor}"
-                        TextColor="White"
-                        CornerRadius="10"
-                        FontSize="12"
-                        Padding="8,12"
-                        SemanticProperties.Description="Open map showing recipe origin location"
-                        SemanticProperties.Hint="Tap to see where this recipe comes from on a map"/>
-
-                <!-- Share Button -->
-                <Button Grid.Column="2"
-                        Text="📤 Share"
-                        Command="{Binding ShareRecipeCommand}"
-                        BackgroundColor="#7B1FA2"
-                        TextColor="White"
-                        CornerRadius="10"
-                        FontSize="12"
-                        Padding="8,12"
-                        SemanticProperties.Description="Share this recipe with others"
-                        SemanticProperties.Hint="Tap to share this recipe via messaging or social media"/>
-            </Grid>
-
-            <!-- Add to Shopping List Section (FUNCTIONALITY + VALIDATION) -->
-            <Frame Padding="16"
-                   CornerRadius="12"
-                   BackgroundColor="{AppThemeBinding Light=#FFF8E1, Dark=#3E2723}"
-                   BorderColor="{AppThemeBinding Light=#FFE082, Dark=#5D4037}"
-                   Margin="0,4">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="🛒 Add Ingredients to Shopping List"
-                           FontSize="16"
-                           FontAttributes="Bold"
-                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                           SemanticProperties.HeadingLevel="Level2"/>
-
-                    <Label Text="Enter the number of servings to calculate ingredient quantities."
-                           FontSize="13"
-                           TextColor="{AppThemeBinding Light=#616161, Dark=#BDBDBD}"/>
-
-                    <!-- Servings Input with Validation -->
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                        <Entry Grid.Column="0"
-                               x:Name="ServingsEntry"
-                               Placeholder="Number of servings (1-20)"
-                               Keyboard="Numeric"
-                               Text="{Binding ShoppingServingsInput}"
-                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                               BackgroundColor="{AppThemeBinding Light=White, Dark=#2C2C2C}"
-                               PlaceholderColor="Gray"
-                               SemanticProperties.Description="Enter number of servings for shopping list"
-                               SemanticProperties.Hint="Type a number between 1 and 20"/>
-                        <Button Grid.Column="1"
-                                Text="🛒 Add"
-                                Command="{Binding AddToShoppingListCommand}"
-                                BackgroundColor="{StaticResource PrimaryColor}"
-                                TextColor="White"
-                                CornerRadius="10"
-                                FontSize="13"
-                                FontAttributes="Bold"
-                                Padding="16,10"
-                                SemanticProperties.Description="Add ingredients to shopping list"
-                                SemanticProperties.Hint="Tap to add all ingredients to your shopping list"/>
-                    </Grid>
-
-                    <!-- Validation Error Message -->
-                    <Label Text="{Binding ShoppingValidationMessage}"
-                           FontSize="12"
-                           TextColor="{StaticResource ErrorColor}"
-                           IsVisible="{Binding ShoppingValidationMessage, Converter={StaticResource IsStringNotNullOrEmptyConverter}}"
-                           SemanticProperties.Description="{Binding ShoppingValidationMessage}"/>
-
-                    <!-- Success Message -->
-                    <Frame Padding="10"
-                           CornerRadius="8"
-                           BackgroundColor="{AppThemeBinding Light=#E8F5E9, Dark=#1B5E20}"
-                           BorderColor="Transparent"
-                           IsVisible="{Binding ShoppingSuccessMessage, Converter={StaticResource IsStringNotNullOrEmptyConverter}}">
-                        <Label Text="{Binding ShoppingSuccessMessage}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light=#2E7D32, Dark=#A5D6A7}"
-                               SemanticProperties.Description="{Binding ShoppingSuccessMessage}"/>
+                    <Frame Grid.Column="0" Padding="8" CornerRadius="10"
+                           BackgroundColor="{DynamicResource InfoBackgroundColor}"
+                           BorderColor="Transparent">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label Text="⏱️" FontSize="20" HorizontalOptions="Center"/>
+                            <Label Text="{Binding Recipe.PrepTimeMinutes, StringFormat='{0}m'}"
+                                   FontSize="{DynamicResource FontSizeCaption}" HorizontalOptions="Center"
+                                   TextColor="{DynamicResource TextPrimaryColor}"
+                                   SemanticProperties.Description="{Binding Recipe.PrepTimeMinutes, StringFormat='Preparation time {0} minutes'}"/>
+                            <Label Text="Prep" FontSize="10" HorizontalOptions="Center"
+                                   TextColor="{DynamicResource TextSecondaryColor}"/>
+                        </VerticalStackLayout>
                     </Frame>
-                </VerticalStackLayout>
-            </Frame>
 
-            <!-- Nutrition Info Section -->
-            <Frame Padding="12"
-                   CornerRadius="12"
-                   BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2C2C2C}"
-                   BorderColor="Transparent"
-                   Margin="0,4">
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="Nutrition (per serving)"
-                           FontSize="16"
-                           FontAttributes="Bold"
-                           TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                           SemanticProperties.HeadingLevel="Level2"/>
-                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4" ColumnSpacing="8">
-                        <Label Grid.Row="0" Grid.Column="0"
-                               Text="{Binding Recipe.Nutrition.Calories, StringFormat='🔥 Calories: {0} kcal'}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
-                        <Label Grid.Row="0" Grid.Column="1"
-                               Text="{Binding Recipe.Nutrition.ProteinGrams, StringFormat='💪 Protein: {0:F1}g'}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
-                        <Label Grid.Row="1" Grid.Column="0"
-                               Text="{Binding Recipe.Nutrition.CarbsGrams, StringFormat='🌾 Carbs: {0:F1}g'}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
-                        <Label Grid.Row="1" Grid.Column="1"
-                               Text="{Binding Recipe.Nutrition.FatGrams, StringFormat='🧈 Fat: {0:F1}g'}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
-                        <Label Grid.Row="2" Grid.Column="0"
-                               Text="{Binding Recipe.Nutrition.FiberGrams, StringFormat='🥬 Fiber: {0:F1}g'}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
-                    </Grid>
-                </VerticalStackLayout>
-            </Frame>
+                    <Frame Grid.Column="1" Padding="8" CornerRadius="10"
+                           BackgroundColor="{DynamicResource InfoBackgroundColor}"
+                           BorderColor="Transparent">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label Text="🔥" FontSize="20" HorizontalOptions="Center"/>
+                            <Label Text="{Binding Recipe.CookTimeMinutes, StringFormat='{0}m'}"
+                                   FontSize="{DynamicResource FontSizeCaption}" HorizontalOptions="Center"
+                                   TextColor="{DynamicResource TextPrimaryColor}"
+                                   SemanticProperties.Description="{Binding Recipe.CookTimeMinutes, StringFormat='Cooking time {0} minutes'}"/>
+                            <Label Text="Cook" FontSize="10" HorizontalOptions="Center"
+                                   TextColor="{DynamicResource TextSecondaryColor}"/>
+                        </VerticalStackLayout>
+                    </Frame>
 
-            <!-- Ingredients Section -->
-            <Label Text="Ingredients"
-                   FontSize="18"
-                   FontAttributes="Bold"
-                   Margin="0,8,0,4"
-                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                   SemanticProperties.HeadingLevel="Level2"/>
+                    <Frame Grid.Column="2" Padding="8" CornerRadius="10"
+                           BackgroundColor="{DynamicResource InfoBackgroundColor}"
+                           BorderColor="Transparent">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label Text="🍽️" FontSize="20" HorizontalOptions="Center"/>
+                            <Label Text="{Binding Recipe.Servings, StringFormat='{0}'}"
+                                   FontSize="{DynamicResource FontSizeCaption}" HorizontalOptions="Center"
+                                   TextColor="{DynamicResource TextPrimaryColor}"
+                                   SemanticProperties.Description="{Binding Recipe.Servings, StringFormat='Serves {0} people'}"/>
+                            <Label Text="Serves" FontSize="10" HorizontalOptions="Center"
+                                   TextColor="{DynamicResource TextSecondaryColor}"/>
+                        </VerticalStackLayout>
+                    </Frame>
 
-            <CollectionView ItemsSource="{Binding Recipe.Ingredients}"
-                            SemanticProperties.Description="List of ingredients needed for this recipe">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="x:String">
-                        <HorizontalStackLayout Spacing="8" Padding="4,6">
-                            <Label Text="•"
-                                   FontSize="16"
-                                   TextColor="{StaticResource PrimaryColor}"
-                                   VerticalOptions="Center"/>
-                            <Label Text="{Binding .}"
-                                   FontSize="14"
-                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                                   VerticalOptions="Center"/>
-                        </HorizontalStackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                    <Frame Grid.Column="3" Padding="8" CornerRadius="10"
+                           BackgroundColor="{DynamicResource InfoBackgroundColor}"
+                           BorderColor="Transparent">
+                        <VerticalStackLayout HorizontalOptions="Center">
+                            <Label Text="📊" FontSize="20" HorizontalOptions="Center"/>
+                            <Label Text="{Binding Recipe.Difficulty}"
+                                   FontSize="{DynamicResource FontSizeCaption}" HorizontalOptions="Center"
+                                   TextColor="{DynamicResource TextPrimaryColor}"
+                                   SemanticProperties.Description="{Binding Recipe.Difficulty, StringFormat='Difficulty level is {0}'}"/>
+                            <Label Text="Level" FontSize="10" HorizontalOptions="Center"
+                                   TextColor="{DynamicResource TextSecondaryColor}"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
 
-            <!-- Steps Section -->
-            <Label Text="Method"
-                   FontSize="18"
-                   FontAttributes="Bold"
-                   Margin="0,12,0,4"
-                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                   SemanticProperties.HeadingLevel="Level2"/>
+                <!-- Description -->
+                <Label Text="{Binding Recipe.Description}"
+                       FontSize="{DynamicResource FontSizeSubtitle}"
+                       TextColor="{DynamicResource TextSecondaryColor}"
+                       Margin="0,4"/>
 
-            <CollectionView ItemsSource="{Binding Recipe.Steps}"
-                            SemanticProperties.Description="Step by step cooking instructions">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="x:String">
-                        <Frame Padding="12"
-                               Margin="0,4"
+                <!-- Action Buttons Row -->
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" Margin="0,8">
+
+                    <Button Grid.Column="0"
+                            Text="{Binding SpeakButtonText}"
+                            Command="{Binding ToggleSpeakStepsCommand}"
+                            BackgroundColor="{DynamicResource PrimaryColor}"
+                            TextColor="{DynamicResource ButtonTextColor}"
+                            CornerRadius="10"
+                            FontSize="12"
+                            Padding="8,12"
+                            SemanticProperties.Description="Read recipe steps aloud using text to speech"
+                            SemanticProperties.Hint="Tap to hear the recipe steps read aloud"/>
+
+                    <Button Grid.Column="1"
+                            Text="🗺️ Origin Map"
+                            Command="{Binding OpenMapCommand}"
+                            BackgroundColor="{DynamicResource SecondaryColor}"
+                            TextColor="{DynamicResource ButtonTextColor}"
+                            CornerRadius="10"
+                            FontSize="12"
+                            Padding="8,12"
+                            SemanticProperties.Description="Open map showing recipe origin location"
+                            SemanticProperties.Hint="Tap to see where this recipe comes from on a map"/>
+
+                    <Button Grid.Column="2"
+                            Text="📤 Share"
+                            Command="{Binding ShareRecipeCommand}"
+                            BackgroundColor="#7B1FA2"
+                            TextColor="{DynamicResource ButtonTextColor}"
+                            CornerRadius="10"
+                            FontSize="12"
+                            Padding="8,12"
+                            SemanticProperties.Description="Share this recipe with others"
+                            SemanticProperties.Hint="Tap to share this recipe via messaging or social media"/>
+                </Grid>
+
+                <!-- Shopping List Section -->
+                <Frame Padding="16"
+                       CornerRadius="12"
+                       BackgroundColor="{DynamicResource CardBackgroundColor}"
+                       BorderColor="{DynamicResource BorderColor}"
+                       Margin="0,4">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="🛒 Add Ingredients to Shopping List"
+                               FontSize="{DynamicResource FontSizeSubtitle}"
+                               FontAttributes="Bold"
+                               TextColor="{DynamicResource TextPrimaryColor}"
+                               SemanticProperties.HeadingLevel="Level2"/>
+
+                        <Label Text="Enter the number of servings to calculate ingredient quantities."
+                               FontSize="{DynamicResource FontSizeCaption}"
+                               TextColor="{DynamicResource TextSecondaryColor}"/>
+
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <Entry Grid.Column="0"
+                                   x:Name="ServingsEntry"
+                                   Placeholder="Number of servings (1-20)"
+                                   Keyboard="Numeric"
+                                   Text="{Binding ShoppingServingsInput}"
+                                   TextColor="{DynamicResource TextPrimaryColor}"
+                                   BackgroundColor="{DynamicResource CardBackgroundColor}"
+                                   PlaceholderColor="Gray"
+                                   SemanticProperties.Description="Enter number of servings for shopping list"
+                                   SemanticProperties.Hint="Type a number between 1 and 20"/>
+                            <Button Grid.Column="1"
+                                    Text="🛒 Add"
+                                    Command="{Binding AddToShoppingListCommand}"
+                                    BackgroundColor="{DynamicResource PrimaryColor}"
+                                    TextColor="{DynamicResource ButtonTextColor}"
+                                    CornerRadius="10"
+                                    FontSize="13"
+                                    FontAttributes="Bold"
+                                    Padding="16,10"
+                                    SemanticProperties.Description="Add ingredients to shopping list"
+                                    SemanticProperties.Hint="Tap to add all ingredients to your shopping list"/>
+                        </Grid>
+
+                        <!-- Validation Error Message -->
+                        <Label Text="{Binding ShoppingValidationMessage}"
+                               FontSize="{DynamicResource FontSizeCaption}"
+                               TextColor="{DynamicResource ErrorColor}"
+                               IsVisible="{Binding ShoppingValidationMessage, Converter={StaticResource IsStringNotNullOrEmptyConverter}}"
+                               SemanticProperties.Description="{Binding ShoppingValidationMessage}"/>
+
+                        <!-- Success Message -->
+                        <Frame Padding="10"
                                CornerRadius="8"
-                               BackgroundColor="{AppThemeBinding Light=#FAFAFA, Dark=#252525}"
-                               BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#404040}">
-                            <Label Text="{Binding .}"
-                                   FontSize="14"
-                                   TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"/>
+                               BackgroundColor="{DynamicResource InfoBackgroundColor}"
+                               BorderColor="Transparent"
+                               IsVisible="{Binding ShoppingSuccessMessage, Converter={StaticResource IsStringNotNullOrEmptyConverter}}">
+                            <Label Text="{Binding ShoppingSuccessMessage}"
+                                   FontSize="{DynamicResource FontSizeCaption}"
+                                   TextColor="{DynamicResource PrimaryColor}"
+                                   SemanticProperties.Description="{Binding ShoppingSuccessMessage}"/>
                         </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                    </VerticalStackLayout>
+                </Frame>
 
-            <!-- Bottom spacing -->
-            <BoxView HeightRequest="20" Color="Transparent"/>
+                <!-- Nutrition Info Section -->
+                <Frame Padding="12"
+                       CornerRadius="12"
+                       BackgroundColor="{DynamicResource CardBackgroundColor}"
+                       BorderColor="Transparent"
+                       Margin="0,4">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Nutrition (per serving)"
+                               FontSize="{DynamicResource FontSizeSubtitle}"
+                               FontAttributes="Bold"
+                               TextColor="{DynamicResource TextPrimaryColor}"
+                               SemanticProperties.HeadingLevel="Level2"/>
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4" ColumnSpacing="8">
+                            <Label Grid.Row="0" Grid.Column="0"
+                                   Text="{Binding Recipe.Nutrition.Calories, StringFormat='🔥 Calories: {0} kcal'}"
+                                   FontSize="{DynamicResource FontSizeCaption}"
+                                   TextColor="{DynamicResource TextPrimaryColor}"/>
+                            <Label Grid.Row="0" Grid.Column="1"
+                                   Text="{Binding Recipe.Nutrition.ProteinGrams, StringFormat='💪 Protein: {0:F1}g'}"
+                                   FontSize="{DynamicResource FontSizeCaption}"
+                                   TextColor="{DynamicResource TextPrimaryColor}"/>
+                            <Label Grid.Row="1" Grid.Column="0"
+                                   Text="{Binding Recipe.Nutrition.CarbsGrams, StringFormat='🌾 Carbs: {0:F1}g'}"
+                                   FontSize="{DynamicResource FontSizeCaption}"
+                                   TextColor="{DynamicResource TextPrimaryColor}"/>
+                            <Label Grid.Row="1" Grid.Column="1"
+                                   Text="{Binding Recipe.Nutrition.FatGrams, StringFormat='🧈 Fat: {0:F1}g'}"
+                                   FontSize="{DynamicResource FontSizeCaption}"
+                                   TextColor="{DynamicResource TextPrimaryColor}"/>
+                            <Label Grid.Row="2" Grid.Column="0"
+                                   Text="{Binding Recipe.Nutrition.FiberGrams, StringFormat='🥬 Fiber: {0:F1}g'}"
+                                   FontSize="{DynamicResource FontSizeCaption}"
+                                   TextColor="{DynamicResource TextPrimaryColor}"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
 
-        </VerticalStackLayout>
-    </ScrollView>
+                <!-- Ingredients Section -->
+                <Label Text="Ingredients"
+                       FontSize="{DynamicResource FontSizeHeader}"
+                       FontAttributes="Bold"
+                       Margin="0,8,0,4"
+                       TextColor="{DynamicResource TextPrimaryColor}"
+                       SemanticProperties.HeadingLevel="Level2"/>
+
+                <CollectionView ItemsSource="{Binding Recipe.Ingredients}"
+                                SemanticProperties.Description="List of ingredients needed for this recipe">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <HorizontalStackLayout Spacing="8" Padding="4,6">
+                                <Label Text="•"
+                                       FontSize="16"
+                                       TextColor="{DynamicResource PrimaryColor}"
+                                       VerticalOptions="Center"/>
+                                <Label Text="{Binding .}"
+                                       FontSize="{DynamicResource FontSizeBody}"
+                                       TextColor="{DynamicResource TextPrimaryColor}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Steps Section -->
+                <Label Text="Method"
+                       FontSize="{DynamicResource FontSizeHeader}"
+                       FontAttributes="Bold"
+                       Margin="0,12,0,4"
+                       TextColor="{DynamicResource TextPrimaryColor}"
+                       SemanticProperties.HeadingLevel="Level2"/>
+
+                <CollectionView ItemsSource="{Binding Recipe.Steps}"
+                                SemanticProperties.Description="Step by step cooking instructions">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Frame Padding="12"
+                                   Margin="0,4"
+                                   CornerRadius="8"
+                                   BackgroundColor="{DynamicResource CardBackgroundColor}"
+                                   BorderColor="{DynamicResource BorderColor}">
+                                <Label Text="{Binding .}"
+                                       FontSize="{DynamicResource FontSizeBody}"
+                                       TextColor="{DynamicResource TextPrimaryColor}"/>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <BoxView HeightRequest="20" Color="Transparent"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

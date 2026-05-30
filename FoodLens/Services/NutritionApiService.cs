@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.RegularExpressions;
 using FoodLens.Models;
 
 namespace FoodLens.Services;
@@ -9,12 +10,35 @@ namespace FoodLens.Services;
 /// Uses the Open Food Facts API (free, no API key required) for real food data.
 ///
 /// API documentation: https://world.openfoodfacts.org/data
-/// Response models are defined separately in Models/OpenFoodFactsModels.cs.
+/// Response models are defined in Models/OpenFoodFactsModels.cs (namespace FoodLens.Models).
 /// </summary>
-public class NutritionApiService
+public partial class NutritionApiService
 {
     private readonly HttpClient _httpClient;
     private const string BaseUrl = "https://world.openfoodfacts.org/api/v2";
+
+    /// <summary>
+    /// Compile-time generated regular expression for barcode format validation.
+    ///
+    /// FIX (Roslyn SYSLIB1045 / CA1854): Replaced <c>new Regex(..., RegexOptions.Compiled)</c>
+    /// with the <see cref="GeneratedRegexAttribute"/> source generator.
+    /// [GeneratedRegex] emits the entire regex automaton as IL at compile time rather than
+    /// building the NFA at runtime, giving faster startup and zero allocation per-call.
+    /// The class must be <c>partial</c> for the source generator to inject the implementation.
+    /// </summary>
+    [GeneratedRegex(@"^\d{8,14}$")]
+    private static partial Regex BarcodeRegex();
+
+    /// <summary>
+    /// Cached <see cref="JsonSerializerOptions"/> instance to avoid repeated allocation.
+    /// Roslyn CA1869 flags creating new JsonSerializerOptions on every call because the
+    /// constructor performs expensive reflection-based metadata caching internally.
+    /// By reusing a single static instance, serialisation is both faster and allocation-free.
+    /// </summary>
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
 
     /// <summary>
     /// Initialises the NutritionApiService with a configured HttpClient.
@@ -45,10 +69,7 @@ public class NutritionApiService
     public async Task<NutritionInfo?> GetNutritionByNameAsync(string foodName)
     {
         // Input validation — guard against empty search terms
-        if (string.IsNullOrWhiteSpace(foodName))
-        {
-            throw new ArgumentException("Food name cannot be empty.", nameof(foodName));
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(foodName, nameof(foodName));
 
         try
         {
@@ -71,9 +92,7 @@ public class NutritionApiService
 
             // Read and deserialise the JSON response body
             string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var result = JsonSerializer.Deserialize<OpenFoodFactsResponse>(
-                json,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var result = JsonSerializer.Deserialize<OpenFoodFactsResponse>(json, JsonOptions);
 
             // Validate that at least one product was returned
             if (result?.Products is null || result.Products.Count == 0)
@@ -116,34 +135,61 @@ public class NutritionApiService
     }
 
     /// <summary>
-    /// Looks up a food product by its barcode (EAN/UPC format).
+    /// Looks up a food product by its barcode (EAN-8, EAN-13, or UPC-A format).
     /// Intended for future integration with the camera barcode scanning feature.
+    ///
+    /// VALIDATION: Barcodes must be 8–14 numeric digits only.
+    /// Invalid formats are rejected immediately with <see cref="ArgumentException"/>
+    /// rather than making a futile network request that will return no results.
     /// </summary>
-    /// <param name="barcode">The product barcode string (numeric digits only).</param>
+    /// <param name="barcode">
+    /// The product barcode string. Must contain 8 to 14 numeric digits only.
+    /// </param>
     /// <returns>
     /// A tuple of (ProductName, NutritionInfo) if the product is found; null otherwise.
     /// </returns>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="barcode"/> is null or whitespace.</exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="barcode"/> is null, whitespace, or not a valid barcode format.
+    /// </exception>
     /// <exception cref="InvalidOperationException">Thrown when a network or timeout error occurs.</exception>
     public async Task<(string ProductName, NutritionInfo? Nutrition)?> GetProductByBarcodeAsync(
         string barcode)
     {
-        if (string.IsNullOrWhiteSpace(barcode))
-            throw new ArgumentException("Barcode cannot be empty.", nameof(barcode));
+        // VALIDATION 1: Null / empty guard
+        ArgumentException.ThrowIfNullOrWhiteSpace(barcode, nameof(barcode));
+
+        // VALIDATION 2: Format check — must be 8–14 numeric digits (EAN-8/13, UPC-A)
+        // FIX (Roslyn SYSLIB1045): Uses the [GeneratedRegex] method instead of a stored Regex field.
+        if (!BarcodeRegex().IsMatch(barcode.Trim()))
+        {
+            throw new ArgumentException(
+                "Barcode must contain between 8 and 14 numeric digits only. " +
+                $"Received: '{barcode}'",
+                nameof(barcode));
+        }
 
         try
         {
-            string url = $"{BaseUrl}/product/{Uri.EscapeDataString(barcode)}.json";
-            HttpResponseMessage response = await _httpClient.GetAsync(url).ConfigureAwait(false);
+            string url = $"{BaseUrl}/product/{Uri.EscapeDataString(barcode.Trim())}.json";
+            HttpResponseMessage response = await _httpClient.GetAsync(url)
+                .ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) return null;
+            if (!response.IsSuccessStatusCode)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[NutritionAPI] Barcode lookup HTTP {(int)response.StatusCode}");
+                return null;
+            }
 
             string json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var result = JsonSerializer.Deserialize<OpenFoodFactsSingleProduct>(
-                json,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var result = JsonSerializer.Deserialize<OpenFoodFactsSingleProduct>(json, JsonOptions);
 
-            if (result?.Product is null) return null;
+            if (result?.Product is null)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[NutritionAPI] No product found for barcode '{barcode}'");
+                return null;
+            }
 
             string name = result.Product.ProductName ?? "Unknown Product";
             var nutriments = result.Product.Nutriments;
@@ -155,11 +201,19 @@ public class NutritionApiService
         }
         catch (HttpRequestException ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[NutritionAPI] Barcode network error: {ex.Message}");
             throw new InvalidOperationException("Network error while fetching product data.", ex);
         }
         catch (TaskCanceledException)
         {
-            throw new InvalidOperationException("Request timed out.");
+            System.Diagnostics.Debug.WriteLine("[NutritionAPI] Barcode request timed out.");
+            throw new InvalidOperationException("Request timed out. Please check your connection.");
+        }
+        catch (JsonException ex)
+        {
+            // Non-fatal: unexpected API response format — return null rather than crashing
+            System.Diagnostics.Debug.WriteLine($"[NutritionAPI] Barcode JSON error: {ex.Message}");
+            return null;
         }
         catch (Exception ex)
         {
@@ -173,6 +227,7 @@ public class NutritionApiService
     /// <see cref="NutritionInfo"/> model used throughout the application.
     /// Extracted to follow the DRY principle — both search and barcode lookup use
     /// identical mapping logic, so it lives in one place.
+    /// Sodium is converted from grams per 100g to milligrams per 100g (* 1000).
     /// </summary>
     /// <param name="nutriments">The API nutriment data to convert.</param>
     /// <returns>A populated <see cref="NutritionInfo"/> instance.</returns>
