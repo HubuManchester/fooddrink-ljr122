@@ -9,6 +9,8 @@ public static class HardwareHelper
 {
     /// <summary>
     /// Performs haptic feedback safely, catching FeatureNotSupportedException.
+    /// Wrapping in a try-catch here means every call-site is clean and concise,
+    /// with no duplicated exception-handling boilerplate (KISS + DRY).
     /// </summary>
     /// <param name="type">The type of haptic feedback to perform.</param>
     public static void PerformHaptic(HapticFeedbackType type = HapticFeedbackType.Click)
@@ -19,14 +21,17 @@ public static class HardwareHelper
         }
         catch (FeatureNotSupportedException)
         {
+            // Haptic feedback is optional — silently log and continue.
+            // Not all devices or emulators support haptic feedback.
             System.Diagnostics.Debug.WriteLine("[HardwareHelper] Haptic feedback not supported.");
         }
     }
 
     /// <summary>
     /// Triggers device vibration safely for the specified duration.
+    /// Catches FeatureNotSupportedException so callers need no error handling.
     /// </summary>
-    /// <param name="milliseconds">Duration of vibration in milliseconds.</param>
+    /// <param name="milliseconds">Duration of vibration in milliseconds. Default is 200ms.</param>
     public static void Vibrate(int milliseconds = 200)
     {
         try
@@ -35,6 +40,7 @@ public static class HardwareHelper
         }
         catch (FeatureNotSupportedException)
         {
+            // Vibration is optional — silently log and continue.
             System.Diagnostics.Debug.WriteLine("[HardwareHelper] Vibration not supported.");
         }
     }

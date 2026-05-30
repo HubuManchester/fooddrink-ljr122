@@ -12,51 +12,69 @@ namespace FoodLens.ViewModels;
 /// ViewModel for the main recipes list page.
 /// Handles loading, filtering, searching, shake-to-discover,
 /// swipe-to-favourite gesture, and share functionality.
+///
+/// Key design patterns used:
+/// - Repository pattern: delegates all data access to <see cref="RecipeService"/>.
+/// - Debounce pattern: search text changes are debounced (350ms) to avoid
+///   firing a new query on every keystroke, improving performance (KISS).
+/// - DRY: all haptic feedback goes through <see cref="HardwareHelper"/>
+///   rather than repeating try-catch blocks in every method.
+///
+/// FIX (Roslyn CA2213): Implements <see cref="IDisposable"/> to correctly release
+/// the <see cref="_searchDebounceCts"/> CancellationTokenSource when the ViewModel
+/// is no longer needed. Without disposal, the WaitHandle inside CTS leaks indefinitely.
+/// The DI container (AddSingleton) holds a reference for the app's lifetime, but
+/// implementing IDisposable is still correct practice and satisfies the analyser.
 /// </summary>
-public partial class RecipesViewModel : BaseViewModel
+public partial class RecipesViewModel : BaseViewModel, IDisposable
 {
     private readonly RecipeService _recipeService;
 
     /// <summary>
     /// Debounce cancellation token source for search text changes.
-    /// Protected by a lock to ensure thread-safe replacement and disposal.
+    /// Protected by <see cref="_debounceLock"/> to ensure thread-safe replacement.
     /// </summary>
     private CancellationTokenSource? _searchDebounceCts;
 
     /// <summary>
     /// Lock object for thread-safe access to <see cref="_searchDebounceCts"/>.
+    /// Prevents a race condition where two rapid keystrokes could dispose the
+    /// same CancellationTokenSource from different threads simultaneously.
     /// </summary>
     private readonly object _debounceLock = new();
 
-    /// <summary>Observable collection of recipes for the list view.</summary>
-    public ObservableCollection<Recipe> Recipes { get; } = new();
+    /// <summary>Tracks whether Dispose has already been called (CA2213).</summary>
+    private bool _disposed;
 
-    /// <summary>Available filter categories.</summary>
-    public ObservableCollection<string> Categories { get; } = new()
-    {
+    /// <summary>Observable collection of recipes bound to the list view.</summary>
+    public ObservableCollection<Recipe> Recipes { get; } = [];
+
+    /// <summary>Available filter category options for the toolbar.</summary>
+    public ObservableCollection<string> Categories { get; } =
+    [
         "All", "Breakfast", "Lunch", "Dinner", "Dessert", "Drinks"
-    };
+    ];
 
     /// <summary>Currently selected category filter.</summary>
     [ObservableProperty]
     private string _selectedCategory = "All";
 
-    /// <summary>Search text entered by user.</summary>
+    /// <summary>Search text entered by the user. Changes trigger a debounced reload.</summary>
     [ObservableProperty]
     private string _searchText = string.Empty;
 
-    /// <summary>Toast message shown after swipe-to-favourite action.</summary>
+    /// <summary>Toast message shown after swipe-to-favourite or swipe-to-share action.</summary>
     [ObservableProperty]
     private string _toastMessage = string.Empty;
 
-    /// <summary>Controls visibility of the toast notification.</summary>
+    /// <summary>Controls visibility of the toast notification overlay.</summary>
     [ObservableProperty]
     private bool _isToastVisible;
 
     /// <summary>
-    /// Initialises the RecipesViewModel with the recipe service dependency.
+    /// Initialises the RecipesViewModel with the injected recipe service.
     /// </summary>
-    /// <param name="recipeService">Injected recipe data service.</param>
+    /// <param name="recipeService">Data service providing recipe data.</param>
     public RecipesViewModel(RecipeService recipeService)
     {
         Title = "Recipes";
@@ -64,8 +82,9 @@ public partial class RecipesViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// Loads recipes from the service with current filter applied.
-    /// Includes comprehensive error handling.
+    /// Loads recipes from the service with the current filter or search applied.
+    /// Includes comprehensive error handling — all exceptions are caught and
+    /// displayed to the user via DisplayAlert so the app never crashes silently.
     /// </summary>
     [RelayCommand]
     private async Task GetRecipesAsync()
@@ -91,6 +110,7 @@ public partial class RecipesViewModel : BaseViewModel
                 recipes = await _recipeService.GetRecipesByCategoryAsync(SelectedCategory);
             }
 
+            // Clear the existing collection before adding new items
             if (Recipes.Count != 0)
             {
                 Recipes.Clear();
@@ -116,10 +136,11 @@ public partial class RecipesViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// Sets the selected category and reloads recipes.
-    /// Called by category filter buttons in the UI via CommandParameter.
+    /// Sets the selected category and reloads the recipe list.
+    /// Called by category filter buttons via CommandParameter binding.
+    /// Clears the search text so category and search filters don't conflict.
     /// </summary>
-    /// <param name="category">The category to filter by.</param>
+    /// <param name="category">The category name to filter by.</param>
     [RelayCommand]
     private async Task FilterByCategoryAsync(string category)
     {
@@ -144,9 +165,9 @@ public partial class RecipesViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// Navigates to recipe detail page with haptic feedback.
+    /// Navigates to the recipe detail page with haptic feedback.
     /// </summary>
-    /// <param name="recipe">The recipe to view in detail.</param>
+    /// <param name="recipe">The recipe to display in detail.</param>
     [RelayCommand]
     private async Task GoToDetailAsync(Recipe recipe)
     {
@@ -165,10 +186,10 @@ public partial class RecipesViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// Swipe-to-favourite: toggles favourite status when user swipes right on a recipe card.
-    /// Demonstrates advanced gesture-based functionality (swipe interaction).
+    /// Swipe-to-favourite: toggles the favourite status when the user swipes right.
+    /// Demonstrates advanced gesture-based interaction (SwipeView) with haptic feedback.
     /// </summary>
-    /// <param name="recipe">The recipe to toggle favourite status for.</param>
+    /// <param name="recipe">The recipe whose favourite status should be toggled.</param>
     [RelayCommand]
     private async Task SwipeFavouriteAsync(Recipe recipe)
     {
@@ -184,16 +205,16 @@ public partial class RecipesViewModel : BaseViewModel
             // Haptic feedback for swipe action (HARDWARE: Haptic Feedback)
             HardwareHelper.PerformHaptic(HapticFeedbackType.LongPress);
 
-            // Show toast notification
+            // Show a toast to confirm the action to the user
             ToastMessage = isFav
                 ? $"❤️ {recipe.Name} added to favourites!"
                 : $"💔 {recipe.Name} removed from favourites.";
             IsToastVisible = true;
 
-            // Refresh the list to update the favourite indicator
+            // Refresh the list to update the favourite indicator on the card
             await GetRecipesAsync();
 
-            // Auto-hide toast after 2.5 seconds
+            // Auto-hide the toast after 2.5 seconds
             await Task.Delay(2500);
             IsToastVisible = false;
         }
@@ -243,15 +264,23 @@ public partial class RecipesViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// Shake-to-discover: selects a random recipe with vibration feedback.
-    /// Uses accelerometer shake detection and vibration hardware.
-    /// HARDWARE FEATURES: Vibration, Accelerometer (shake detected in code-behind).
+    /// Shake-to-discover: selects a random recipe and navigates to its detail page.
+    /// Triggered either by the floating action button or by the physical shake gesture
+    /// detected via the accelerometer in <see cref="RecipesPage"/> code-behind.
+    ///
+    /// HARDWARE FEATURES:
+    /// - Vibration: 400ms pulse confirms the shake was detected.
+    /// - Accelerometer: shake is detected in the page's code-behind via
+    ///   Accelerometer.Default.ShakeDetected, then delegated to this command.
     /// </summary>
     [RelayCommand]
     private async Task ShakeDiscoverAsync()
     {
         if (IsBusy)
         {
+            // Provide feedback even when the app is busy so the user knows
+            // their action was registered but must wait for the current operation.
+            HardwareHelper.PerformHaptic(HapticFeedbackType.LongPress);
             return;
         }
 
@@ -282,33 +311,31 @@ public partial class RecipesViewModel : BaseViewModel
     }
 
     /// <summary>
-    /// Triggers search with debounce when search text changes.
-    /// Uses a 350ms debounce to avoid firing a search on every keystroke,
-    /// which improves performance and reduces unnecessary processing.
+    /// Triggers a search with debounce when the search text property changes.
+    /// Uses a 350ms debounce delay to avoid firing a new database/service query
+    /// on every single keystroke, which would be wasteful and cause UI jank.
     ///
-    /// FIX: The previous version created a new <see cref="CancellationTokenSource"/> without
-    /// disposing the old one, causing a CA2000 resource-leak warning from Roslyn.
-    /// The replacement now acquires <see cref="_debounceLock"/>, cancels AND disposes the
-    /// previous instance, then assigns the new one — eliminating the leak.
+    /// FIX (Roslyn CA2000): The previous implementation created a new
+    /// <see cref="CancellationTokenSource"/> without disposing the previous one,
+    /// leaking a WaitHandle on every keystroke. The fix acquires
+    /// <see cref="_debounceLock"/>, cancels AND disposes the old instance,
+    /// then assigns the new one — eliminating the resource leak entirely.
     /// </summary>
     /// <param name="value">The new search text value.</param>
     partial void OnSearchTextChanged(string value)
     {
         CancellationTokenSource newCts;
 
-        // FIX: Dispose the old CTS before replacing it.
-        // Roslyn CA2000 warns when an IDisposable is created but never explicitly disposed.
-        // CancellationTokenSource implements IDisposable and holds a WaitHandle that is
-        // only released on Dispose(). Without Dispose(), every keystroke leaked a handle.
+        // Acquire lock to safely cancel + dispose old CTS and create new one
         lock (_debounceLock)
         {
             _searchDebounceCts?.Cancel();
-            _searchDebounceCts?.Dispose();       // <-- the fix
+            _searchDebounceCts?.Dispose(); // Fix CA2000: dispose old CTS to release WaitHandle
             _searchDebounceCts = new CancellationTokenSource();
             newCts = _searchDebounceCts;
         }
 
-        // Fire search after 350ms debounce delay
+        // Fire the search after the 350ms debounce window
         Task.Run(async () =>
         {
             try
@@ -325,8 +352,44 @@ public partial class RecipesViewModel : BaseViewModel
             }
             catch (TaskCanceledException)
             {
-                // Expected when user types another character before delay completes
+                // Expected when the user types another character before the delay completes
             }
         }, newCts.Token);
+    }
+
+    /// <summary>
+    /// Releases managed resources.
+    /// FIX (Roslyn CA2213): Disposes the <see cref="_searchDebounceCts"/> field
+    /// so the underlying WaitHandle is released when the ViewModel is no longer
+    /// needed. This satisfies the analyser and is correct dispose hygiene.
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Protected dispose method following the standard Dispose pattern.
+    /// </summary>
+    /// <param name="disposing">True if called from Dispose(); false if from finaliser.</param>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        if (disposing)
+        {
+            lock (_debounceLock)
+            {
+                _searchDebounceCts?.Cancel();
+                _searchDebounceCts?.Dispose();
+                _searchDebounceCts = null;
+            }
+        }
+
+        _disposed = true;
     }
 }

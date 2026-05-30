@@ -1,0 +1,13 @@
+<!--?xml version="1.0" encoding="UTF-8"?-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
+  <!-- Outer circle (compass body) -->
+  <circle cx="12" cy="12" r="10" stroke="#212121" stroke-width="2" fill="none"></circle>
+  <!-- Inner compass diamond/needle -->
+  <polygon points="12,2.5 14.5,12 12,21.5 9.5,12" fill="none" stroke="#212121" stroke-width="1.2"></polygon>
+  <!-- North half (filled) -->
+  <polygon points="12,2.5 14.5,12 12,12" fill="#212121"></polygon>
+  <polygon points="12,2.5 9.5,12 12,12" fill="#212121"></polygon>
+  <!-- South half (outline only, already covered by the diamond stroke) -->
+  <!-- Center dot -->
+  <circle cx="12" cy="12" r="1.5" fill="#212121"></circle>
+</svg>

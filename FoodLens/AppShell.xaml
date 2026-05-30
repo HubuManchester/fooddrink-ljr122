@@ -18,6 +18,11 @@
                       ContentTemplate="{DataTemplate views:CameraPage}"
                       Route="CameraPage"/>
 
+        <ShellContent Title="Compass"
+                      Icon="compass_icon.png"
+                      ContentTemplate="{DataTemplate views:CompassPage}"
+                      Route="CompassPage"/>
+
         <ShellContent Title="Map"
                       Icon="map_icon.png"
                       ContentTemplate="{DataTemplate views:MapPage}"
