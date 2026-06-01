@@ -17,7 +17,12 @@ public class Recipe
         "avocado_toast.png",
         "mango_lassi.png",
         "lava_cake.png",
+<<<<<<< HEAD
         "thai_curry.png"
+=======
+        "thai_curry.png",
+        "sushi_platter.png"
+>>>>>>> 0bb8001 (Iteration 4: Fix sushi image display issue and improve code quality)
     };
 
     /// <summary>Unique identifier for the recipe.</summary>
@@ -48,10 +53,17 @@ public class Recipe
     public string Difficulty { get; set; } = string.Empty;
 
     /// <summary>List of ingredients required.</summary>
+<<<<<<< HEAD
     public List<string> Ingredients { get; init; } = new();
 
     /// <summary>Step-by-step cooking instructions.</summary>
     public List<string> Steps { get; init; } = new();
+=======
+    public List<string> Ingredients { get; init; } = [];
+
+    /// <summary>Step-by-step cooking instructions.</summary>
+    public List<string> Steps { get; init; } = [];
+>>>>>>> 0bb8001 (Iteration 4: Fix sushi image display issue and improve code quality)
 
     /// <summary>Nutritional information per serving.</summary>
     public NutritionInfo Nutrition { get; set; } = new();
